@@ -1,0 +1,4 @@
+id,user_id,payment_id,amount,currency,payment_method,provider,wallet_address,status,created_at,expires_at,description
+1,111222333,"pay_jkl101",100.00,USDT,crypto,binance,"0xabcdef1234567890abcdef1234567890abcdef12",pending,"2023-05-15T09:30:45+03:30","2023-05-15T10:30:45+03:30","Premium monthly subscription"
+2,444555666,"pay_mno202",250.00,USDT,crypto,tron,"TYuLVxEFS8G5U2rxcm3VH5XcMbmAkdELMN4SSHaHNFwQRs",pending,"2023-05-15T10:05:22+03:30","2023-05-15T11:05:22+03:30","Premium yearly subscription"
+3,777888999,"pay_pqr303",50.00,USDT,crypto,bitkhab,"0x7890abcdef1234567890abcdef1234567890abcd",pending,"2023-05-15T11:45:17+03:30","2023-05-15T12:45:17+03:30","Basic monthly subscription"

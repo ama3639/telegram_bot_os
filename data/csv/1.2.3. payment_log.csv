@@ -1,0 +1,4 @@
+id,user_id,payment_id,amount,currency,payment_method,provider,transaction_hash,status,created_at,updated_at,description
+1,123456789,"pay_abc123",100.00,USDT,crypto,binance,"0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b",completed,"2023-05-10T10:15:23+03:30","2023-05-10T10:17:42+03:30","Premium monthly subscription"
+2,987654321,"pay_def456",50.00,USDT,crypto,tron,"TYuLVxEFS8G5U2rxcm3VH5XcMbmAkdEveJ2SSHaHNF9XNb",completed,"2023-05-11T08:22:15+03:30","2023-05-11T08:25:37+03:30","Basic monthly subscription"
+3,555666777,"pay_ghi789",250.00,USDT,crypto,bitkhab,"0x3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d",failed,"2023-05-12T12:05:01+03:30","2023-05-12T12:10:33+03:30","Premium yearly subscription - Payment timed out"

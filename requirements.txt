@@ -1,0 +1,58 @@
+# Dépendances principales
+python-telegram-bot==13.15    # Version 13.x est plus compatible avec le code actuel que 20.x
+python-dotenv==1.0.0          # Pour la gestion des variables d'environnement
+pytz==2023.3                  # Pour la gestion des fuseaux horaires
+
+# Bibliothèques HTTP et API
+requests==2.31.0              # Pour les requêtes HTTP
+aiohttp==3.8.5                # Pour les requêtes HTTP asynchrones
+websocket-client==1.6.1       # Pour les connexions WebSocket (échanges crypto)
+
+# Traitement de données
+pandas==2.1.0                 # Pour l'analyse de données
+numpy==1.24.3                 # Pour les calculs numériques
+matplotlib==3.7.2             # Pour les visualisations et graphiques
+mplfinance==0.12.9b0          # Pour les graphiques de trading
+
+# Base de données
+SQLAlchemy==2.0.23            # ORM pour la gestion de base de données
+alembic==1.12.0               # Migrations de base de données
+
+# Sécurité
+cryptography==41.0.4          # Pour le chiffrement et la sécurité
+PyJWT==2.8.0                  # Pour l'authentification JWT
+bcrypt==4.0.1                 # Pour le hachage des mots de passe
+bleach==6.0.0                 # Pour la protection contre les XSS
+
+# Analyse technique et ML
+scikit-learn==1.3.0           # Pour les modèles de machine learning
+ta==0.10.2                    # Technical Analysis library (simplifie le calcul d'indicateurs)
+tensorflow==2.14.0            # Pour les modèles de deep learning (optionnel)
+keras==2.14.0                 # Interface pour tensorflow (optionnel)
+
+# Utilitaires
+qrcode==7.4.2                 # Pour la génération de QR codes
+psutil==5.9.5                 # Pour la surveillance du système
+xlsxwriter==3.1.2             # Pour l'export Excel
+python-dateutil==2.8.2        # Pour le traitement de dates
+Pillow==10.0.1                # Pour le traitement d'images
+
+# AWS (si nécessaire)
+boto3==1.28.53                # SDK AWS
+
+# Tests
+pytest==7.4.2                 # Framework de test
+pytest-cov==4.1.0             # Couverture de code pour pytest
+parameterized==0.9.0          # Tests paramétrés
+pytest-mock==3.11.1           # Mocking pour pytest
+
+# Qualité de code
+pylint==2.17.5                # Linting
+black==23.9.1                 # Formatage de code
+flake8==6.1.0                 # Linting
+mypy==1.5.1                   # Vérification de type
+isort==5.12.0                 # Tri des imports
+
+# Documentation
+Sphinx==7.2.6                 # Pour la génération de documentation
+sphinx-rtd-theme==1.3.0       # Thème Read the Docs pour Sphinx

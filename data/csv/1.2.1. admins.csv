@@ -1,0 +1,3 @@
+id,user_id,username,first_name,last_name,permissions,created_at,last_active_at,status
+1,123456789,admin_user,Admin,User,full_access,"2023-01-01T00:00:00+03:30","2023-05-15T14:30:00+03:30",active
+2,987654321,moderator,System,Moderator,moderate_users,"2023-01-01T00:00:00+03:30","2023-05-15T12:45:00+03:30",active

@@ -1,0 +1,139 @@
+{
+    "welcome": {
+      "new_user": "🌟 Welcome to our multi-purpose bot, {name}!\n\nThis bot provides many features for you. To get started, you can use the buttons below or use the /help command for more guidance.",
+      "returning_user": "👋 Hello {name}, welcome back!\n\nWhat can I do for you today?",
+      "returning_unregistered": "👋 Hello {name}!\n\nTo use all the features of the bot, please complete your registration.",
+      "returning_subscribed": "👋 Hello {name}!\n\nYour {subscription_type} subscription is active and has {days_left} days remaining."
+    },
+    
+    "registration": {
+      "start": "🖋 Please select your preferred language:",
+      "enter_name": "👤 Please enter your full name:",
+      "invalid_name": "❌ The name you entered is invalid. Please enter your name with a minimum of 3 and maximum of 50 characters.",
+      "enter_email": "📧 Please enter your email address:",
+      "invalid_email": "❌ The email address you entered is invalid. Please enter a valid email address.",
+      "email_exists": "❌ This email address is already registered in the system. Please use a different email address.",
+      "enter_phone": "📱 Please enter your mobile phone number or click the 'Share Contact' button:",
+      "invalid_phone": "❌ The phone number you entered is invalid. Please enter a valid phone number.",
+      "different_contact": "⚠️ The submitted phone number doesn't belong to you. Please enter your phone number as text.",
+      "summary": "📋 *Your Information Summary*\n\n👤 Name: {name}\n📧 Email: {email}\n📱 Phone: {phone}",
+      "check_info": "Please check your information and select 'Confirm' if it's correct.",
+      "success": "✅ Your registration was completed successfully!\n\nYou can now use all the features of the bot.",
+      "cancelled": "❌ Registration canceled. You can try again anytime using the /register command.",
+      "already_registered": "ℹ️ You have already registered in the system."
+    },
+    
+    "help": {
+      "main": "🔍 *Bot Help*\n\nThis bot provides various features for you. For more information about each section, use the buttons below.",
+      "commands": "📝 *Main Bot Commands*\n\n/start - Start using the bot\n/help - Show help\n/register - Register in the system\n/profile - View profile\n/settings - Bot settings\n/subscribe - Purchase subscription\n/contact - Contact support\n/language - Change language",
+      "services": "🛠 *Bot Services*\n\nThis bot offers various services including:\n\n• Cryptocurrency market information\n• Technical analysis\n• Real-time price information\n• Portfolio management\n• Important alerts and notifications",
+      "subscription": "💎 *Bot Subscriptions*\n\nTo use advanced features of the bot, you can purchase one of the following subscriptions:\n\n• Basic Subscription: Access to basic features\n• Premium Subscription: Access to technical analysis and alerts\n• VIP Subscription: Access to all features and personalized consultation\n\nUse the /subscribe command to purchase a subscription.",
+      "payment": "💰 *Payment Methods*\n\nSupported payment methods include:\n\n• Bank cards\n• Currency payments\n• Cryptocurrencies\n• E-wallets"
+    },
+    
+    "settings": {
+      "main": "⚙️ *Bot Settings*\n\nYou can manage bot settings from this section. Please select one of the options below:",
+      "choose_language": "🌐 *Set Language*\n\nSelect your preferred language:",
+      "language_updated": "✅ Your language has been successfully updated.",
+      "notification": "🔔 *Notification Settings*\n\nYou can set the type of notifications you receive:",
+      "notification_updated": "✅ Notification setting '{notification_type}' has been changed to '{status}'.",
+      "enabled": "Enabled",
+      "disabled": "Disabled",
+      "timezone": "🕒 *Set Time Zone*\n\nSelect your time zone:",
+      "timezone_updated": "✅ Your time zone has been changed to '{timezone}'.",
+      "profile": "👤 *Edit Profile*\n\nSelect the information you want to edit:",
+      "edit_name": "👤 *Edit Name*\n\nCurrent name: {current_name}\n\nPlease enter your new name:",
+      "invalid_name": "❌ The name you entered is invalid. Please enter your name with a minimum of 3 and maximum of 50 characters.",
+      "name_updated": "✅ Your name has been successfully updated.",
+      "edit_email": "📧 *Edit Email*\n\nCurrent email: {current_email}\n\nPlease enter your new email:",
+      "invalid_email": "❌ The email address you entered is invalid. Please enter a valid email address.",
+      "email_exists": "❌ This email address is already registered in the system. Please use a different email address.",
+      "email_updated": "✅ Your email has been successfully updated.",
+      "edit_phone": "📱 *Edit Phone Number*\n\nCurrent phone number: {current_phone}\n\nPlease enter your new phone number:",
+      "invalid_phone": "❌ The phone number you entered is invalid. Please enter a valid phone number.",
+      "phone_updated": "✅ Your phone number has been successfully updated.",
+      "privacy": "🔒 *Privacy Settings*\n\nIn this section, you can manage settings related to your privacy.",
+      "cancelled": "❌ Exited settings section."
+    },
+    
+    "profile": {
+      "not_registered": "⚠️ You haven't completed your registration yet. Please register first to view your profile."
+    },
+    
+    "contact": {
+      "instructions": "📨 *Contact Support*\n\nPlease send your message to the support team:",
+      "message_sent": "✅ Your message has been successfully sent to the support team. We will respond to you as soon as possible.",
+      "cancelled": "❌ Sending message to support has been canceled."
+    },
+    
+    "about": {
+      "main": "ℹ️ *About the Bot*\n\nThis bot is a multi-purpose tool for providing various services. Our team is proud to have developed this bot to improve your user experience.",
+      "team": "👨‍💻 *Our Team*\n\nThe development team of this bot consists of experts in programming, artificial intelligence, and data analysis.",
+      "services": "🛠 *Services*\n\nThe main services provided by this bot include:\n\n• Cryptocurrency market information\n• Technical analysis\n• Portfolio management\n• Price alerts\n• Expert consultation",
+      "terms": "📜 *Terms and Conditions*\n\nUse of this bot is subject to terms and conditions. Please read the terms before use. These include:\n\n• Use of information for personal purposes only\n• No commercial use without permission\n• Respect for intellectual property rights\n• No disclosure of confidential information",
+      "privacy": "🔒 *Privacy*\n\nWe respect the privacy of our users. Your information is only used to improve services and is not shared with third parties."
+    },
+    
+    "subscription": {
+      "expired": "⚠️ Your {subscription_type} subscription has expired. To continue using premium services, please renew your subscription.",
+      "expiring_soon": "⚠️ Your {subscription_type} subscription will expire in {days_left} days. To prevent service interruption, please renew your subscription.",
+      "types": {
+        "basic": "Basic",
+        "premium": "Premium",
+        "vip": "VIP",
+        "quarterly_premium": "Premium (Quarterly)",
+        "annual_premium": "Premium (Annual)"
+      }
+    },
+    
+    "messages": {
+      "please_register": "⚠️ To use all features of the bot, please complete your registration.",
+      "default_response": "👋 Your message has been received. To learn about the bot's features, you can use the /help command.",
+      "sticker_response": "🙂 Nice sticker!",
+      "photo_response": "📸 Your image has been received.",
+      "document_response": "📄 Your file has been received.",
+      "location_response": "📍 Your location (latitude: {latitude}, longitude: {longitude}) has been received."
+    },
+    
+    "error": {
+      "general": "❌ Sorry, an error has occurred. Please try again later or contact support."
+    },
+    
+    "button": {
+      "register": "Register",
+      "help": "Help",
+      "language": "Change Language",
+      "settings": "Settings",
+      "services": "Services",
+      "subscribe": "Subscribe",
+      "profile": "My Profile",
+      "back": "Back",
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "edit": "Edit",
+      "help_commands": "Commands",
+      "help_services": "Services",
+      "help_subscription": "Subscriptions",
+      "help_payment": "Payments",
+      "contact_support": "Contact Support",
+      "share_contact": "Share Contact",
+      "transaction_history": "Transaction History",
+      "settings_language": "Language",
+      "settings_notification": "Notifications",
+      "settings_timezone": "Time Zone",
+      "settings_profile": "Edit Profile",
+      "settings_privacy": "Privacy",
+      "edit_name": "Edit Name",
+      "edit_email": "Edit Email",
+      "edit_phone": "Edit Phone",
+      "delete_account": "Delete Account",
+      "export_data": "Export Data",
+      "about_team": "About Team",
+      "about_services": "Our Services",
+      "terms": "Terms & Conditions",
+      "privacy": "Privacy",
+      "notifications_news": "News & Announcements",
+      "notifications_price": "Price Alerts",
+      "notifications_subscription": "Subscription Status"
+    }
+  }

@@ -1,0 +1,129 @@
+D:\phonix coin\mr.trader\st\telegram_bot\claud\os
+├── data/                      # داده‌های ذخیره شده
+│   ├── backups/             # فایل‌های پشتیبان
+│   │   ├── daily/         # پشتیبان‌های روزانه
+│   │   └── weekly/        # پشتیبان‌های هفتگی
+│   ├── csv/                 # فایل‌های CSV
+│   │   ├── admins.csv     # اطلاعات ادمین‌ها
+│   │   ├── financial_resources.csv # منابع مالی
+│   │   ├── payment_log.csv # لاگ پرداخت‌ها
+│   │   ├── pending_payments.csv # پرداخت‌های در انتظار
+│   │   └── users.csv      # اطلاعات کاربران
+│   ├── db/                  # فایل‌های پایگاه داده
+│   │   └── bot.db         # پایگاه داده اصلی SQLite
+│   └── reports/             # گزارش‌های تولید شده
+│       ├── user_reports/  # گزارش‌های کاربران
+│       ├── payment_reports/ # گزارش‌های مالی
+│       ├── system_reports/ # گزارش‌های سیستمی
+│       └── custom_reports/ # گزارش‌های سفارشی
+├── deployment/                # فایل‌های مربوط به استقرار
+│   ├── docker/              # فایل‌های داکر
+│   │   ├── Dockerfile     # تنظیمات داکر
+│   │   └── docker-compose.yml # پیکربندی چند کانتینر
+│   ├── mrtrader.service     # فایل سرویس سیستمی
+│   └── nginx/               # پیکربندی وب‌سرور (برای API)
+├── locales/                   # فایل‌های ترجمه
+│   ├── ar/                  # عربی
+│   │   └── messages.json  # پیام‌های عربی
+│   ├── en/                  # انگلیسی
+│   │   └── messages.json  # پیام‌های انگلیسی
+│   ├── fa/                  # فارسی (پیش‌فرض)
+│   │   └── messages.json  # پیام‌های فارسی
+│   ├── hi/                  # هندی
+│   │   └── messages.json  # پیام‌های هندی
+│   ├── tr/                  # ترکی
+│   │   └── messages.json  # پیام‌های ترکی
+│   └── zh/                  # چینی
+│       └── messages.json  # پیام‌های چینی
+├── logs/                      # فایل‌های لاگ سیستم
+│   ├── telegram_bot.log     # لاگ اصلی ربات
+│   ├── error.log            # لاگ خطاها
+│   ├── access.log           # لاگ دسترسی‌ها
+│   └── payment.log          # لاگ پرداخت‌ها
+├── src/                       # کد منبع پروژه
+│   ├── api/                 # رابط‌های API
+│   │   ├── __init__.py    # فایل آغازگر پکیج
+│   │   ├── price_action.py # API تحلیل پرایس اکشن
+│   │   ├── live_price.py  # API قیمت‌های زنده
+│   │   └── exchanges/     # رابط‌های صرافی‌ها
+│   │       ├── binance.py # رابط بایننس
+│   │       └── kucoin.py # رابط کوکوین
+│   ├── accounting/          # ماژول مدیریت مالی
+│   │   ├── __init__.py    # فایل آغازگر پکیج
+│   │   ├── ledger.py      # دفتر کل حسابداری
+│   │   ├── currency_converter.py # تبدیل ارزها
+│   │   └── financial_reports.py # گزارش‌های مالی
+│   ├── core/                # هسته اصلی برنامه
+│   │   ├── __init__.py    # فایل آغازگر پکیج
+│   │   ├── bot.py         # کلاس اصلی ربات
+│   │   ├── config.py      # تنظیمات برنامه
+│   │   └── database.py    # مدیریت پایگاه داده
+│   ├── handlers/            # هندلرهای تلگرام
+│   │   ├── __init__.py    # فایل آغازگر پکیج
+│   │   ├── admin_handlers.py # هندلرهای مدیران
+│   │   ├── payment_handlers.py # هندلرهای پرداخت
+│   │   ├── telegram_handler.py # هندلر اصلی تلگرام
+│   │   └── user_handlers.py # هندلرهای کاربران عادی
+│   ├── models/              # مدل‌های داده
+│   │   ├── __init__.py    # فایل آغازگر پکیج
+│   │   ├── user.py        # مدل کاربر
+│   │   ├── payment.py     # مدل پرداخت
+│   │   └── subscription.py # مدل اشتراک
+│   ├── strategies/          # استراتژی‌های تحلیل
+│   │   ├── __init__.py    # فایل آغازگر پکیج
+│   │   ├── api_strategy.py # استراتژی‌های API
+│   │   ├── ai_strategy.py # استراتژی‌های هوش مصنوعی
+│   │   ├── technical_analysis.py # تحلیل تکنیکال
+│   │   └── machine_learning/ # الگوریتم‌های یادگیری ماشین
+│   │       ├── __init__.py # فایل آغازگر پکیج
+│   │       ├── regression.py # الگوریتم‌های رگرسیون
+│   │       └── classification.py # الگوریتم‌های طبقه‌بندی
+│   ├── utils/               # توابع کمکی
+│   │   ├── __init__.py    # فایل آغازگر پکیج
+│   │   ├── accounting.py  # توابع حسابداری
+│   │   ├── cache.py       # مدیریت کش
+│   │   ├── chart_generator.py # تولید نمودار
+│   │   ├── crypto_payment.py # پرداخت‌های رمزارزی
+│   │   ├── localization.py # مدیریت چندزبانه
+│   │   ├── logger.py      # پیکربندی لاگر
+│   │   ├── notification.py # سیستم اطلاع‌رسانی
+│   │   ├── security.py    # ابزارهای امنیتی
+│   │   ├── validators.py # اعتبارسنجی‌ها
+│   │   └── timezone_utils.py # ابزارهای مدیریت منطقه زمانی
+│   ├── __init__.py          # فایل آغازگر پکیج
+│   └── main.py              # فایل اصلی برنامه
+├── tests/                     # تست‌های برنامه
+│   ├── __init__.py          # فایل آغازگر پکیج
+│   ├── test_api.py          # تست API
+│   ├── test_crypto_payment.py # تست پرداخت رمزارزی
+│   ├── test_payment_integration.py # تست یکپارچگی پرداخت
+│   ├── test_telegram_handler.py # تست هندلر تلگرام
+│   ├── test_timezone_fix.py # تست اصلاح منطقه زمانی
+│   ├── test_timezone_fix_windows.py # تست اصلاح منطقه زمانی در ویندوز
+│   └── run_tests.py         # اجراکننده تست‌ها
+├── tools/                     # ابزارهای توسعه و نگهداری
+│   ├── find_datetime_now_usages.py # یافتن موارد استفاده از datetime.now()
+│   ├── fix_all_datetime_now.py # اصلاح خودکار datetime.now()
+│   ├── db_migration/        # اسکریپت‌های مهاجرت پایگاه داده
+│   │   ├── v1_to_v2.py    # مهاجرت از نسخه ۱ به ۲
+│   │   └── v2_to_v3.py    # مهاجرت از نسخه ۲ به ۳
+│   ├── maintenance/         # اسکریپت‌های نگهداری
+│   │   ├── backup.py      # پشتیبان‌گیری
+│   │   ├── cleanup.py     # پاکسازی داده‌های قدیمی
+│   │   └── status.py      # بررسی وضعیت سیستم
+│   └── reports/             # اسکریپت‌های تولید گزارش
+│       ├── generate_user_report.py # تولید گزارش کاربران
+│       └── generate_financial_report.py # تولید گزارش مالی
+├── docs/                      # مستندات پروژه
+│   ├── api/                 # مستندات API
+│   ├── user_guide/          # راهنمای کاربر
+│   ├── developer_guide/     # راهنمای توسعه‌دهنده
+│   └── TIMEZONE_FIX.md      # توضیحات مربوط به اصلاح منطقه زمانی
+├── cache/                     # فایل‌های کش موقت
+├── .env                      # فایل تنظیمات محیطی (محرمانه)
+├── .env.example              # نمونه فایل تنظیمات
+├── .gitignore                # فایل‌های نادیده گرفته شده در گیت
+├── LICENSE                   # فایل مجوز استفاده
+├── README.md                 # مستندات پروژه (این فایل)
+├── requirements.txt          # وابستگی‌های پروژه
+└── __main__.py               # نقطه ورود اصلی برنامه

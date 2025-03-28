@@ -1,0 +1,17 @@
+// {
+//     "include": [
+//         "5. src",
+//         "6. tests",
+//         "7. tools"
+//     ],
+//     "extraPaths": [
+//         "5. src",
+//         "6. tests",
+//         "7. tools"
+//     ],
+//     "typeCheckingMode": "basic",
+//     "reportMissingImports": "warning",
+//     "reportMissingTypeStubs": "none",
+//     "pythonVersion": "3.10",
+//     "pythonPlatform": "All"
+// }

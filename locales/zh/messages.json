@@ -1,0 +1,139 @@
+{
+    "welcome": {
+      "new_user": "🌟 欢迎来到我们的多功能机器人，{name}！\n\n这个机器人为您提供了许多功能。要开始使用，您可以使用下面的按钮或使用 /help 命令获取更多指导。",
+      "returning_user": "👋 您好 {name}，欢迎回来！\n\n今天我能为您做什么？",
+      "returning_unregistered": "👋 您好 {name}！\n\n要使用机器人的所有功能，请完成您的注册。",
+      "returning_subscribed": "👋 您好 {name}！\n\n您的{subscription_type}订阅处于活动状态，还剩{days_left}天。"
+    },
+    
+    "registration": {
+      "start": "🖋 请选择您的首选语言：",
+      "enter_name": "👤 请输入您的全名：",
+      "invalid_name": "❌ 您输入的名称无效。请输入至少3个且最多50个字符的名称。",
+      "enter_email": "📧 请输入您的电子邮件地址：",
+      "invalid_email": "❌ 您输入的电子邮件地址无效。请输入有效的电子邮件地址。",
+      "email_exists": "❌ 此电子邮件地址已在系统中注册。请使用其他电子邮件地址。",
+      "enter_phone": "📱 请输入您的手机号码或点击\"共享联系人\"按钮：",
+      "invalid_phone": "❌ 您输入的电话号码无效。请输入有效的电话号码。",
+      "different_contact": "⚠️ 提交的电话号码不属于您。请以文本形式输入您的电话号码。",
+      "summary": "📋 *您的信息摘要*\n\n👤 姓名：{name}\n📧 电子邮件：{email}\n📱 电话：{phone}",
+      "check_info": "请检查您的信息，如果正确，请选择\"确认\"。",
+      "success": "✅ 您的注册已成功完成！\n\n您现在可以使用机器人的所有功能。",
+      "cancelled": "❌ 注册已取消。您可以随时使用 /register 命令再次尝试。",
+      "already_registered": "ℹ️ 您已经在系统中注册。"
+    },
+    
+    "help": {
+      "main": "🔍 *机器人帮助*\n\n这个机器人为您提供各种功能。要了解每个部分的更多信息，请使用下面的按钮。",
+      "commands": "📝 *主要机器人命令*\n\n/start - 开始使用机器人\n/help - 显示帮助\n/register - 在系统中注册\n/profile - 查看个人资料\n/settings - 机器人设置\n/subscribe - 购买订阅\n/contact - 联系支持\n/language - 更改语言",
+      "services": "🛠 *机器人服务*\n\n这个机器人提供各种服务，包括：\n\n• 加密货币市场信息\n• 技术分析\n• 实时价格信息\n• 投资组合管理\n• 重要提醒和通知",
+      "subscription": "💎 *机器人订阅*\n\n要使用机器人的高级功能，您可以购买以下订阅之一：\n\n• 基本订阅：访问基本功能\n• 高级订阅：访问技术分析和提醒\n• VIP订阅：访问所有功能和个性化咨询\n\n使用 /subscribe 命令购买订阅。",
+      "payment": "💰 *支付方式*\n\n支持的支付方式包括：\n\n• 银行卡\n• 货币支付\n• 加密货币\n• 电子钱包"
+    },
+    
+    "settings": {
+      "main": "⚙️ *机器人设置*\n\n您可以在此部分管理机器人设置。请选择以下选项之一：",
+      "choose_language": "🌐 *设置语言*\n\n选择您的首选语言：",
+      "language_updated": "✅ 您的语言已成功更新。",
+      "notification": "🔔 *通知设置*\n\n您可以设置接收的通知类型：",
+      "notification_updated": "✅ '{notification_type}'通知设置已更改为'{status}'。",
+      "enabled": "已启用",
+      "disabled": "已禁用",
+      "timezone": "🕒 *设置时区*\n\n选择您的时区：",
+      "timezone_updated": "✅ 您的时区已更改为'{timezone}'。",
+      "profile": "👤 *编辑个人资料*\n\n选择要编辑的信息：",
+      "edit_name": "👤 *编辑姓名*\n\n当前姓名：{current_name}\n\n请输入您的新姓名：",
+      "invalid_name": "❌ 您输入的名称无效。请输入至少3个且最多50个字符的名称。",
+      "name_updated": "✅ 您的姓名已成功更新。",
+      "edit_email": "📧 *编辑电子邮件*\n\n当前电子邮件：{current_email}\n\n请输入您的新电子邮件：",
+      "invalid_email": "❌ 您输入的电子邮件地址无效。请输入有效的电子邮件地址。",
+      "email_exists": "❌ 此电子邮件地址已在系统中注册。请使用其他电子邮件地址。",
+      "email_updated": "✅ 您的电子邮件已成功更新。",
+      "edit_phone": "📱 *编辑电话号码*\n\n当前电话号码：{current_phone}\n\n请输入您的新电话号码：",
+      "invalid_phone": "❌ 您输入的电话号码无效。请输入有效的电话号码。",
+      "phone_updated": "✅ 您的电话号码已成功更新。",
+      "privacy": "🔒 *隐私设置*\n\n在此部分中，您可以管理与您的隐私相关的设置。",
+      "cancelled": "❌ 已退出设置部分。"
+    },
+    
+    "profile": {
+      "not_registered": "⚠️ 您尚未完成注册。请先注册以查看您的个人资料。"
+    },
+    
+    "contact": {
+      "instructions": "📨 *联系支持*\n\n请向支持团队发送您的消息：",
+      "message_sent": "✅ 您的消息已成功发送给支持团队。我们将尽快回复您。",
+      "cancelled": "❌ 向支持发送消息已取消。"
+    },
+    
+    "about": {
+      "main": "ℹ️ *关于机器人*\n\n这个机器人是一个多用途工具，用于提供各种服务。我们的团队很自豪能开发这个机器人来改善您的用户体验。",
+      "team": "👨‍💻 *我们的团队*\n\n这个机器人的开发团队由编程、人工智能和数据分析领域的专家组成。",
+      "services": "🛠 *服务*\n\n这个机器人提供的主要服务包括：\n\n• 加密货币市场信息\n• 技术分析\n• 投资组合管理\n• 价格提醒\n• 专家咨询",
+      "terms": "📜 *条款和条件*\n\n使用此机器人受条款和条件的约束。请在使用前阅读条款。这些包括：\n\n• 仅将信息用于个人目的\n• 未经许可不得用于商业用途\n• 尊重知识产权\n• 不披露机密信息",
+      "privacy": "🔒 *隐私*\n\n我们尊重用户的隐私。您的信息仅用于改善服务，不会与第三方共享。"
+    },
+    
+    "subscription": {
+      "expired": "⚠️ 您的{subscription_type}订阅已过期。要继续使用高级服务，请续订您的订阅。",
+      "expiring_soon": "⚠️ 您的{subscription_type}订阅将在{days_left}天内到期。为防止服务中断，请续订您的订阅。",
+      "types": {
+        "basic": "基本",
+        "premium": "高级",
+        "vip": "VIP",
+        "quarterly_premium": "高级（季度）",
+        "annual_premium": "高级（年度）"
+      }
+    },
+    
+    "messages": {
+      "please_register": "⚠️ 要使用机器人的所有功能，请完成您的注册。",
+      "default_response": "👋 已收到您的消息。要了解机器人的功能，您可以使用 /help 命令。",
+      "sticker_response": "🙂 不错的贴纸！",
+      "photo_response": "📸 已收到您的图像。",
+      "document_response": "📄 已收到您的文件。",
+      "location_response": "📍 已收到您的位置（纬度：{latitude}，经度：{longitude}）。"
+    },
+    
+    "error": {
+      "general": "❌ 抱歉，发生了错误。请稍后再试或联系支持。"
+    },
+    
+    "button": {
+      "register": "注册",
+      "help": "帮助",
+      "language": "更改语言",
+      "settings": "设置",
+      "services": "服务",
+      "subscribe": "订阅",
+      "profile": "我的个人资料",
+      "back": "返回",
+      "cancel": "取消",
+      "confirm": "确认",
+      "edit": "编辑",
+      "help_commands": "命令",
+      "help_services": "服务",
+      "help_subscription": "订阅",
+      "help_payment": "支付",
+      "contact_support": "联系支持",
+      "share_contact": "共享联系人",
+      "transaction_history": "交易历史",
+      "settings_language": "语言",
+      "settings_notification": "通知",
+      "settings_timezone": "时区",
+      "settings_profile": "编辑个人资料",
+      "settings_privacy": "隐私",
+      "edit_name": "编辑姓名",
+      "edit_email": "编辑电子邮件",
+      "edit_phone": "编辑电话",
+      "delete_account": "删除账户",
+      "export_data": "导出数据",
+      "about_team": "关于团队",
+      "about_services": "我们的服务",
+      "terms": "条款和条件",
+      "privacy": "隐私",
+      "notifications_news": "新闻和公告",
+      "notifications_price": "价格提醒",
+      "notifications_subscription": "订阅状态"
+    }
+}

@@ -1,0 +1,4 @@
+id,name,description,account_number,currency,balance,available_balance,last_update,status
+1,main_wallet,"کیف پول اصلی سیستم","TNGeca7Pj53xBGYd3NxBppUwYJgJXQm5XD",USDT,10000.00,9800.00,"2023-05-15T14:30:00+03:30",active
+2,payment_gateway,"درگاه پرداخت بایننس","0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b",USDT,5000.00,5000.00,"2023-05-15T14:30:00+03:30",active
+3,reserve_fund,"صندوق ذخیره اضطراری","bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",BTC,1.5,1.5,"2023-05-15T14:30:00+03:30",active

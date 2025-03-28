@@ -1,0 +1,2420 @@
+# بررسی فایل‌های استراتژی
+
+با سلام مجدد. متشکرم از اینکه فایل‌های بیشتری را در اختیار من قرار دادید. من چهار فایل مربوط به بخش استراتژی‌ها را بررسی کردم که همگی خالی هستند. این فایل‌ها بخش مهمی از سیستم تحلیل بازار شما هستند و نیاز به پیاده‌سازی دارند.
+
+## پیشنهادات برای فایل‌های استراتژی
+
+### ۱. فایل `5.6.1. __init__.py`
+
+این فایل باید ماژول‌های استراتژی را import کند:
+
+```python
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+ماژول استراتژی‌های تحلیل بازار ارز دیجیتال.
+
+این ماژول شامل الگوریتم‌ها و استراتژی‌های مختلف برای تحلیل و پیش‌بینی بازار 
+ارزهای دیجیتال است، شامل تحلیل تکنیکال، استراتژی‌های مبتنی بر API و 
+روش‌های هوش مصنوعی.
+"""
+
+from .api_strategy import APIStrategy
+from .ai_strategy import AIStrategy, SentimentAnalysis
+from .technical_analysis import (
+    RSIAnalysis,
+    MACDAnalysis,
+    BollingerBands,
+    FibonacciRetracement,
+    MovingAverages
+)
+
+__all__ = [
+    'APIStrategy',
+    'AIStrategy',
+    'SentimentAnalysis',
+    'RSIAnalysis',
+    'MACDAnalysis',
+    'BollingerBands',
+    'FibonacciRetracement',
+    'MovingAverages'
+]
+```
+
+### ۲. فایل `5.6.2. api_strategy.py`
+
+این فایل باید استراتژی‌های مبتنی بر API را پیاده‌سازی کند:
+
+```python
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+ماژول استراتژی‌های مبتنی بر API.
+
+این ماژول استراتژی‌های معاملاتی و تحلیلی را بر اساس اطلاعات دریافتی
+از API‌های مختلف مانند بایننس و کوکوین پیاده‌سازی می‌کند.
+"""
+
+import logging
+from typing import Dict, List, Optional, Any, Tuple
+import asyncio
+import aiohttp
+from datetime import datetime, timedelta
+
+from utils.timezone_utils import get_current_datetime
+from utils.logger import get_logger
+from api.exchanges.binance import BinanceAPI
+from api.exchanges.kucoin import KucoinAPI
+from api.live_price import LivePriceAPI
+
+logger = get_logger(__name__)
+
+class APIStrategy:
+    """کلاس پایه برای استراتژی‌های مبتنی بر API."""
+    
+    def __init__(self, exchange: str = "binance", symbol: str = "BTC/USDT"):
+        """
+        مقداردهی اولیه کلاس استراتژی API.
+        
+        Args:
+            exchange: نام صرافی ('binance' یا 'kucoin')
+            symbol: نماد جفت ارز
+        """
+        self.exchange = exchange.lower()
+        self.symbol = symbol
+        
+        # انتخاب API مناسب
+        if self.exchange == "binance":
+            self.api = BinanceAPI()
+        elif self.exchange == "kucoin":
+            self.api = KucoinAPI()
+        else:
+            raise ValueError(f"صرافی نامعتبر: {exchange}")
+        
+        self.live_price_api = LivePriceAPI()
+    
+    async def get_market_trend(self, timeframe: str = "1d", limit: int = 30) -> str:
+        """
+        تشخیص روند بازار بر اساس داده‌های API.
+        
+        Args:
+            timeframe: بازه زمانی (1m, 5m, 15m, 1h, 4h, 1d)
+            limit: تعداد کندل‌ها
+            
+        Returns:
+            str: روند بازار ('صعودی', 'نزولی', یا 'خنثی')
+        """
+        try:
+            candles = await self.api.get_candles(self.symbol, timeframe, limit)
+            
+            # محاسبه میانگین متحرک ساده 7 و 25 دوره
+            sma7 = sum(candle['close'] for candle in candles[-7:]) / 7
+            sma25 = sum(candle['close'] for candle in candles[-25:]) / 25
+            
+            current_price = candles[-1]['close']
+            
+            # تشخیص روند بر اساس قیمت فعلی و میانگین‌های متحرک
+            if current_price > sma7 > sma25:
+                return "صعودی"
+            elif current_price < sma7 < sma25:
+                return "نزولی"
+            else:
+                return "خنثی"
+                
+        except Exception as e:
+            logger.error(f"خطا در تشخیص روند بازار: {e}")
+            return "نامشخص"
+    
+    async def get_price_alerts(self, target_price: float, alert_type: str = "above") -> Dict[str, Any]:
+        """
+        ایجاد هشدار قیمتی.
+        
+        Args:
+            target_price: قیمت هدف
+            alert_type: نوع هشدار ('above' یا 'below')
+            
+        Returns:
+            Dict: اطلاعات هشدار
+        """
+        current_price = await self.live_price_api.get_current_price(self.symbol)
+        
+        return {
+            "symbol": self.symbol,
+            "current_price": current_price,
+            "target_price": target_price,
+            "alert_type": alert_type,
+            "created_at": get_current_datetime(),
+            "status": "active"
+        }
+    
+    async def get_arbitrage_opportunities(self, min_difference: float = 1.0) -> List[Dict[str, Any]]:
+        """
+        یافتن فرصت‌های آربیتراژ بین صرافی‌ها.
+        
+        Args:
+            min_difference: حداقل اختلاف قیمت به درصد
+            
+        Returns:
+            List[Dict]: لیست فرصت‌های آربیتراژ
+        """
+        opportunities = []
+        
+        # دریافت قیمت‌ها از صرافی‌های مختلف
+        binance_api = BinanceAPI()
+        kucoin_api = KucoinAPI()
+        
+        common_symbols = ["BTC/USDT", "ETH/USDT", "XRP/USDT", "ADA/USDT", "DOT/USDT"]
+        
+        for symbol in common_symbols:
+            try:
+                binance_price = await binance_api.get_ticker_price(symbol)
+                kucoin_price = await kucoin_api.get_ticker_price(symbol)
+                
+                price_diff_percent = abs((binance_price - kucoin_price) / binance_price * 100)
+                
+                if price_diff_percent >= min_difference:
+                    opportunities.append({
+                        "symbol": symbol,
+                        "binance_price": binance_price,
+                        "kucoin_price": kucoin_price,
+                        "difference_percent": price_diff_percent,
+                        "buy_exchange": "kucoin" if binance_price > kucoin_price else "binance",
+                        "sell_exchange": "binance" if binance_price > kucoin_price else "kucoin",
+                        "timestamp": get_current_datetime()
+                    })
+            except Exception as e:
+                logger.error(f"خطا در بررسی آربیتراژ برای {symbol}: {e}")
+        
+        return opportunities
+```
+
+### ۳. فایل `5.6.3. ai_strategy.py`
+
+این فایل باید استراتژی‌های مبتنی بر هوش مصنوعی را پیاده‌سازی کند:
+
+```python
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+ماژول استراتژی‌های هوش مصنوعی.
+
+این ماژول استراتژی‌های معاملاتی و تحلیلی مبتنی بر هوش مصنوعی
+و یادگیری ماشین را پیاده‌سازی می‌کند.
+"""
+
+import logging
+import numpy as np
+import pandas as pd
+from typing import Dict, List, Optional, Any, Tuple
+from datetime import datetime, timedelta
+import os
+import pickle
+
+from utils.timezone_utils import get_current_datetime
+from utils.logger import get_logger
+from api.exchanges.binance import BinanceAPI
+from strategies.machine_learning.regression import LinearRegressionModel
+from strategies.machine_learning.classification import SVMClassifier
+
+logger = get_logger(__name__)
+
+class AIStrategy:
+    """کلاس پایه برای استراتژی‌های مبتنی بر هوش مصنوعی."""
+    
+    def __init__(self, model_path: Optional[str] = None):
+        """
+        مقداردهی اولیه کلاس استراتژی هوش مصنوعی.
+        
+        Args:
+            model_path: مسیر فایل مدل (اختیاری)
+        """
+        self.model = None
+        self.model_path = model_path
+        self.api = BinanceAPI()
+        
+        if model_path and os.path.exists(model_path):
+            try:
+                with open(model_path, 'rb') as f:
+                    self.model = pickle.load(f)
+                logger.info(f"مدل از مسیر {model_path} بارگذاری شد.")
+            except Exception as e:
+                logger.error(f"خطا در بارگذاری مدل: {e}")
+    
+    async def prepare_features(self, symbol: str, timeframe: str = "1d", limit: int = 100) -> pd.DataFrame:
+        """
+        آماده‌سازی ویژگی‌ها برای استفاده در مدل.
+        
+        Args:
+            symbol: نماد جفت ارز
+            timeframe: بازه زمانی
+            limit: تعداد کندل‌ها
+            
+        Returns:
+            DataFrame: داده‌های آماده‌سازی شده
+        """
+        try:
+            candles = await self.api.get_candles(symbol, timeframe, limit)
+            df = pd.DataFrame(candles)
+            
+            # محاسبه شاخص‌های تکنیکال به عنوان ویژگی
+            df['sma7'] = df['close'].rolling(window=7).mean()
+            df['sma25'] = df['close'].rolling(window=25).mean()
+            df['sma99'] = df['close'].rolling(window=99).mean()
+            
+            # محاسبه RSI
+            delta = df['close'].diff()
+            gain = delta.where(delta > 0, 0)
+            loss = -delta.where(delta < 0, 0)
+            avg_gain = gain.rolling(window=14).mean()
+            avg_loss = loss.rolling(window=14).mean()
+            rs = avg_gain / avg_loss
+            df['rsi'] = 100 - (100 / (1 + rs))
+            
+            # حذف ردیف‌های با مقادیر NaN
+            df.dropna(inplace=True)
+            
+            return df
+            
+        except Exception as e:
+            logger.error(f"خطا در آماده‌سازی ویژگی‌ها: {e}")
+            return pd.DataFrame()
+    
+    async def predict_price(self, symbol: str, days_ahead: int = 1) -> Dict[str, Any]:
+        """
+        پیش‌بینی قیمت آینده.
+        
+        Args:
+            symbol: نماد جفت ارز
+            days_ahead: تعداد روزهای آینده
+            
+        Returns:
+            Dict: نتیجه پیش‌بینی
+        """
+        if not self.model:
+            logger.error("مدل هنوز بارگذاری نشده است.")
+            return {"error": "مدل بارگذاری نشده است"}
+        
+        try:
+            df = await self.prepare_features(symbol)
+            if df.empty:
+                return {"error": "داده‌های کافی برای پیش‌بینی وجود ندارد"}
+            
+            # آماده‌سازی ویژگی‌ها برای پیش‌بینی
+            features = df[['sma7', 'sma25', 'sma99', 'rsi', 'volume']].values
+            
+            # انجام پیش‌بینی
+            predicted_price = self.model.predict(features[-1:])
+            
+            current_price = df['close'].iloc[-1]
+            
+            return {
+                "symbol": symbol,
+                "current_price": current_price,
+                "predicted_price": float(predicted_price[0]),
+                "days_ahead": days_ahead,
+                "prediction_time": get_current_datetime(),
+                "change_percent": float((predicted_price[0] - current_price) / current_price * 100)
+            }
+            
+        except Exception as e:
+            logger.error(f"خطا در پیش‌بینی قیمت: {e}")
+            return {"error": str(e)}
+    
+    async def train_model(self, symbol: str, model_type: str = "regression") -> Dict[str, Any]:
+        """
+        آموزش مدل جدید.
+        
+        Args:
+            symbol: نماد جفت ارز
+            model_type: نوع مدل ('regression' یا 'classification')
+            
+        Returns:
+            Dict: نتیجه آموزش
+        """
+        try:
+            df = await self.prepare_features(symbol)
+            if df.empty:
+                return {"error": "داده‌های کافی برای آموزش وجود ندارد"}
+            
+            # آماده‌سازی داده‌ها برای آموزش
+            features = df[['sma7', 'sma25', 'sma99', 'rsi', 'volume']].values
+            
+            if model_type == "regression":
+                # هدف: قیمت فردا
+                target = df['close'].shift(-1).dropna().values
+                features = features[:-1]  # حذف آخرین ردیف که هدف ندارد
+                
+                model = LinearRegressionModel()
+                
+            elif model_type == "classification":
+                # هدف: آیا قیمت فردا بالاتر از امروز است؟
+                target = (df['close'].shift(-1) > df['close']).astype(int).values
+                features = features[:-1]  # حذف آخرین ردیف که هدف ندارد
+                
+                model = SVMClassifier()
+            
+            else:
+                return {"error": f"نوع مدل نامعتبر: {model_type}"}
+            
+            # آموزش مدل
+            score = model.train(features, target)
+            
+            # ذخیره مدل
+            if not self.model_path:
+                self.model_path = f"ml/models/{symbol.replace('/', '_')}_{model_type}_{get_current_datetime().strftime('%Y%m%d')}.pkl"
+            
+            os.makedirs(os.path.dirname(self.model_path), exist_ok=True)
+            with open(self.model_path, 'wb') as f:
+                pickle.dump(model, f)
+            
+            self.model = model
+            
+            return {
+                "status": "success",
+                "model_type": model_type,
+                "model_path": self.model_path,
+                "accuracy_score": score,
+                "training_time": get_current_datetime()
+            }
+            
+        except Exception as e:
+            logger.error(f"خطا در آموزش مدل: {e}")
+            return {"error": str(e)}
+
+
+class SentimentAnalysis:
+    """
+    کلاس تحلیل احساسات بازار بر اساس داده‌های خبری.
+    """
+    
+    def __init__(self, api_key: Optional[str] = None):
+        """
+        مقداردهی اولیه کلاس تحلیل احساسات.
+        
+        Args:
+            api_key: کلید API برای سرویس تحلیل احساسات
+        """
+        self.api_key = api_key
+    
+    async def analyze_news_sentiment(self, symbol: str, days: int = 1) -> Dict[str, Any]:
+        """
+        تحلیل احساسات اخبار اخیر برای یک ارز.
+        
+        Args:
+            symbol: نماد ارز
+            days: تعداد روزهای اخیر
+            
+        Returns:
+            Dict: نتیجه تحلیل احساسات
+        """
+        # در یک پیاده‌سازی واقعی، باید از API سرویس‌های تحلیل احساسات استفاده شود
+        # این یک پیاده‌سازی نمونه است
+        
+        # شبیه‌سازی تحلیل احساسات
+        sentiment_score = np.random.uniform(-1, 1)
+        
+        sentiment_label = "خنثی"
+        if sentiment_score > 0.3:
+            sentiment_label = "مثبت"
+        elif sentiment_score < -0.3:
+            sentiment_label = "منفی"
+        
+        news_count = np.random.randint(5, 50)
+        
+        return {
+            "symbol": symbol,
+            "sentiment_score": float(sentiment_score),
+            "sentiment_label": sentiment_label,
+            "news_count": news_count,
+            "days_analyzed": days,
+            "analysis_time": get_current_datetime()
+        }
+```
+
+### ۴. فایل `5.6.4. technical_analysis.py`
+
+این فایل باید توابع تحلیل تکنیکال را پیاده‌سازی کند:
+
+```python
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+ماژول تحلیل تکنیکال.
+
+این ماژول توابع و کلاس‌های مختلف برای انجام تحلیل‌های تکنیکال روی داده‌های
+بازار ارزهای دیجیتال را پیاده‌سازی می‌کند.
+"""
+
+import logging
+import numpy as np
+import pandas as pd
+from typing import Dict, List, Optional, Any, Tuple
+from datetime import datetime, timedelta
+
+from utils.timezone_utils import get_current_datetime
+from utils.logger import get_logger
+from api.exchanges.binance import BinanceAPI
+
+logger = get_logger(__name__)
+
+class TechnicalAnalysis:
+    """کلاس پایه برای تحلیل تکنیکال."""
+    
+    def __init__(self):
+        """مقداردهی اولیه کلاس تحلیل تکنیکال."""
+        self.api = BinanceAPI()
+    
+    async def get_candles_df(self, symbol: str, timeframe: str = "1d", limit: int = 100) -> pd.DataFrame:
+        """
+        دریافت کندل‌ها و تبدیل به DataFrame.
+        
+        Args:
+            symbol: نماد جفت ارز
+            timeframe: بازه زمانی
+            limit: تعداد کندل‌ها
+            
+        Returns:
+            DataFrame: داده‌های کندل
+        """
+        try:
+            candles = await self.api.get_candles(symbol, timeframe, limit)
+            return pd.DataFrame(candles)
+        except Exception as e:
+            logger.error(f"خطا در دریافت کندل‌ها: {e}")
+            return pd.DataFrame()
+
+
+class RSIAnalysis(TechnicalAnalysis):
+    """کلاس تحلیل RSI (شاخص قدرت نسبی)."""
+    
+    async def calculate_rsi(self, symbol: str, timeframe: str = "1d", period: int = 14) -> Dict[str, Any]:
+        """
+        محاسبه شاخص RSI.
+        
+        Args:
+            symbol: نماد جفت ارز
+            timeframe: بازه زمانی
+            period: دوره RSI
+            
+        Returns:
+            Dict: مقدار RSI و تفسیر آن
+        """
+        df = await self.get_candles_df(symbol, timeframe, period * 3)
+        if df.empty:
+            return {"error": "داده‌های کافی وجود ندارد"}
+        
+        # محاسبه RSI
+        delta = df['close'].diff()
+        gain = delta.where(delta > 0, 0)
+        loss = -delta.where(delta < 0, 0)
+        
+        avg_gain = gain.rolling(window=period).mean()
+        avg_loss = loss.rolling(window=period).mean()
+        
+        rs = avg_gain / avg_loss
+        rsi = 100 - (100 / (1 + rs))
+        
+        current_rsi = rsi.iloc[-1]
+        
+        # تفسیر RSI
+        interpretation = "خنثی"
+        signal = "نگهداری"
+        
+        if current_rsi > 70:
+            interpretation = "اشباع خرید"
+            signal = "فروش"
+        elif current_rsi < 30:
+            interpretation = "اشباع فروش"
+            signal = "خرید"
+        
+        return {
+            "symbol": symbol,
+            "timeframe": timeframe,
+            "current_rsi": float(current_rsi),
+            "interpretation": interpretation,
+            "signal": signal,
+            "calculation_time": get_current_datetime()
+        }
+
+
+class MACDAnalysis(TechnicalAnalysis):
+    """کلاس تحلیل MACD (واگرایی و همگرایی میانگین متحرک)."""
+    
+    async def calculate_macd(self, symbol: str, timeframe: str = "1d", 
+                           fast_period: int = 12, slow_period: int = 26, 
+                           signal_period: int = 9) -> Dict[str, Any]:
+        """
+        محاسبه شاخص MACD.
+        
+        Args:
+            symbol: نماد جفت ارز
+            timeframe: بازه زمانی
+            fast_period: دوره کوتاه
+            slow_period: دوره بلند
+            signal_period: دوره سیگنال
+            
+        Returns:
+            Dict: مقادیر MACD و تفسیر آن
+        """
+        df = await self.get_candles_df(symbol, timeframe, slow_period * 3)
+        if df.empty:
+            return {"error": "داده‌های کافی وجود ندارد"}
+        
+        # محاسبه EMA‌ها
+        df['ema_fast'] = df['close'].ewm(span=fast_period, adjust=False).mean()
+        df['ema_slow'] = df['close'].ewm(span=slow_period, adjust=False).mean()
+        
+        # محاسبه MACD و خط سیگنال
+        df['macd'] = df['ema_fast'] - df['ema_slow']
+        df['signal'] = df['macd'].ewm(span=signal_period, adjust=False).mean()
+        df['histogram'] = df['macd'] - df['signal']
+        
+        # مقادیر فعلی
+        current_macd = df['macd'].iloc[-1]
+        current_signal = df['signal'].iloc[-1]
+        current_histogram = df['histogram'].iloc[-1]
+        
+        # مقادیر قبلی
+        prev_macd = df['macd'].iloc[-2]
+        prev_signal = df['signal'].iloc[-2]
+        prev_histogram = df['histogram'].iloc[-2]
+        
+        # تفسیر MACD
+        interpretation = "خنثی"
+        signal = "نگهداری"
+        
+        # تقاطع MACD و خط سیگنال
+        if current_macd > current_signal and prev_macd <= prev_signal:
+            interpretation = "تقاطع صعودی"
+            signal = "خرید"
+        elif current_macd < current_signal and prev_macd >= prev_signal:
+            interpretation = "تقاطع نزولی"
+            signal = "فروش"
+        
+        # تغییر جهت هیستوگرام
+        elif current_histogram > 0 and prev_histogram <= 0:
+            interpretation = "تغییر جهت مثبت"
+            signal = "خرید"
+        elif current_histogram < 0 and prev_histogram >= 0:
+            interpretation = "تغییر جهت منفی"
+            signal = "فروش"
+        
+        return {
+            "symbol": symbol,
+            "timeframe": timeframe,
+            "current_macd": float(current_macd),
+            "current_signal": float(current_signal),
+            "current_histogram": float(current_histogram),
+            "interpretation": interpretation,
+            "trade_signal": signal,
+            "calculation_time": get_current_datetime()
+        }
+
+
+class BollingerBands(TechnicalAnalysis):
+    """کلاس تحلیل باندهای بولینگر."""
+    
+    async def calculate_bollinger_bands(self, symbol: str, timeframe: str = "1d", 
+                                      period: int = 20, std_dev: float = 2.0) -> Dict[str, Any]:
+        """
+        محاسبه باندهای بولینگر.
+        
+        Args:
+            symbol: نماد جفت ارز
+            timeframe: بازه زمانی
+            period: دوره میانگین متحرک
+            std_dev: ضریب انحراف معیار
+            
+        Returns:
+            Dict: مقادیر باندهای بولینگر و تفسیر آن
+        """
+        df = await self.get_candles_df(symbol, timeframe, period * 2)
+        if df.empty:
+            return {"error": "داده‌های کافی وجود ندارد"}
+        
+        # محاسبه باندهای بولینگر
+        df['sma'] = df['close'].rolling(window=period).mean()
+        df['std'] = df['close'].rolling(window=period).std()
+        df['upper_band'] = df['sma'] + (df['std'] * std_dev)
+        df['lower_band'] = df['sma'] - (df['std'] * std_dev)
+        
+        # مقادیر فعلی
+        current_price = df['close'].iloc[-1]
+        current_sma = df['sma'].iloc[-1]
+        current_upper = df['upper_band'].iloc[-1]
+        current_lower = df['lower_band'].iloc[-1]
+        
+        # محاسبه موقعیت قیمت نسبت به باندها (0 تا 1)
+        if current_upper - current_lower > 0:
+            band_position = (current_price - current_lower) / (current_upper - current_lower)
+        else:
+            band_position = 0.5
+        
+        # تفسیر باندهای بولینگر
+        interpretation = "خنثی"
+        signal = "نگهداری"
+        
+        if current_price > current_upper:
+            interpretation = "بالاتر از باند بالایی"
+            signal = "فروش"
+        elif current_price < current_lower:
+            interpretation = "پایین‌تر از باند پایینی"
+            signal = "خرید"
+        
+        return {
+            "symbol": symbol,
+            "timeframe": timeframe,
+            "current_price": float(current_price),
+            "middle_band": float(current_sma),
+            "upper_band": float(current_upper),
+            "lower_band": float(current_lower),
+            "band_position": float(band_position),
+            "interpretation": interpretation,
+            "trade_signal": signal,
+            "calculation_time": get_current_datetime()
+        }
+
+
+class FibonacciRetracement(TechnicalAnalysis):
+    """کلاس تحلیل سطوح بازگشت فیبوناچی."""
+    
+    async def calculate_fibonacci_levels(self, symbol: str, timeframe: str = "1d", 
+                                      is_uptrend: bool = True) -> Dict[str, Any]:
+        """
+        محاسبه سطوح بازگشت فیبوناچی.
+        
+        Args:
+            symbol: نماد جفت ارز
+            timeframe: بازه زمانی
+            is_uptrend: آیا روند صعودی است؟
+            
+        Returns:
+            Dict: سطوح فیبوناچی و تفسیر آن
+        """
+        df = await self.get_candles_df(symbol, timeframe, 100)
+        if df.empty:
+            return {"error": "داده‌های کافی وجود ندارد"}
+        
+        # یافتن نقاط اوج و حضیض
+        if is_uptrend:
+            # برای روند صعودی، از پایین‌ترین به بالاترین
+            low_idx = df['low'].idxmin()
+            high_idx = df.loc[low_idx:, 'high'].idxmax()
+            
+            if low_idx >= high_idx:
+                # نقاط معتبر یافت نشد
+                return {"error": "روند صعودی معتبری یافت نشد"}
+                
+            low_price = df.loc[low_idx, 'low']
+            high_price = df.loc[high_idx, 'high']
+        else:
+            # برای روند نزولی، از بالاترین به پایین‌ترین
+            high_idx = df['high'].idxmax()
+            low_idx = df.loc[high_idx:, 'low'].idxmin()
+            
+            if high_idx >= low_idx:
+                # نقاط معتبر یافت نشد
+                return {"error": "روند نزولی معتبری یافت نشد"}
+                
+            high_price = df.loc[high_idx, 'high']
+            low_price = df.loc[low_idx, 'low']
+        
+        # محاسبه سطوح فیبوناچی
+        price_range = high_price - low_price
+        
+        fib_levels = {
+            "0.0": high_price if is_uptrend else low_price,
+            "0.236": high_price - 0.236 * price_range if is_uptrend else low_price + 0.236 * price_range,
+            "0.382": high_price - 0.382 * price_range if is_uptrend else low_price + 0.382 * price_range,
+            "0.5": high_price - 0.5 * price_range if is_uptrend else low_price + 0.5 * price_range,
+            "0.618": high_price - 0.618 * price_range if is_uptrend else low_price + 0.618 * price_range,
+            "0.786": high_price - 0.786 * price_range if is_uptrend else low_price + 0.786 * price_range,
+            "1.0": low_price if is_uptrend else high_price
+        }
+        
+        # قیمت فعلی
+        current_price = df['close'].iloc[-1]
+        
+        # یافتن نزدیک‌ترین سطوح
+        levels_array = np.array(list(fib_levels.values()))
+        closest_levels = sorted(levels_array, key=lambda x: abs(x - current_price))[:2]
+        
+        # یافتن کلیدهای مربوط به نزدیک‌ترین سطوح
+        closest_keys = []
+        for level in closest_levels:
+            for k, v in fib_levels.items():
+                if v == level:
+                    closest_keys.append(k)
+                    break
+        
+        return {
+            "symbol": symbol,
+            "timeframe": timeframe,
+            "trend_type": "صعودی" if is_uptrend else "نزولی",
+            "high_price": float(high_price),
+            "low_price": float(low_price),
+            "current_price": float(current_price),
+            "fibonacci_levels": {k: float(v) for k, v in fib_levels.items()},
+            "closest_levels": closest_keys,
+            "calculation_time": get_current_datetime()
+        }
+
+
+class MovingAverages(TechnicalAnalysis):
+    """کلاس تحلیل میانگین‌های متحرک."""
+    
+    async def calculate_moving_averages(self, symbol: str, timeframe: str = "1d") -> Dict[str, Any]:
+        """
+        محاسبه میانگین‌های متحرک مختلف.
+        
+        Args:
+            symbol: نماد جفت ارز
+            timeframe: بازه زمانی
+            
+        Returns:
+            Dict: مقادیر میانگین‌های متحرک و تفسیر آن
+        """
+        df = await self.get_candles_df(symbol, timeframe, 200)
+        if df.empty:
+            return {"error": "داده‌های کافی وجود ندارد"}
+        
+        # محاسبه میانگین‌های متحرک ساده
+        df['sma7'] = df['close'].rolling(window=7).mean()
+        df['sma25'] = df['close'].rolling(window=25).mean()
+        df['sma50'] = df['close'].rolling(window=50).mean()
+        df['sma99'] = df['close'].rolling(window=99).mean()
+        df['sma200'] = df['close'].rolling(window=200).mean()
+        
+        # محاسبه میانگین‌های متحرک نمایی
+        df['ema12'] = df['close'].ewm(span=12, adjust=False).mean()
+        df['ema26'] = df['close'].ewm(span=26, adjust=False).mean()
+        df['ema50'] = df['close'].ewm(span=50, adjust=False).mean()
+        
+        # مقادیر فعلی
+        current_price = df['close'].iloc[-1]
+        current_data = {
+            "price": float(current_price),
+            "sma7": float(df['sma7'].iloc[-1]),
+            "sma25": float(df['sma25'].iloc[-1]),
+            "sma50": float(df['sma50'].iloc[-1]),
+            "sma99": float(df['sma99'].iloc[-1]),
+            "sma200": float(df['sma200'].iloc[-1]),
+            "ema12": float(df['ema12'].iloc[-1]),
+            "ema26": float(df['ema26'].iloc[-1]),
+            "ema50": float(df['ema50'].iloc[-1])
+        }
+        
+        # تفسیر میانگین‌های متحرک
+        is_above_sma200 = current_price > current_data["sma200"]
+        is_above_sma50 = current_price > current_data["sma50"]
+        is_above_sma7 = current_price > current_data["sma7"]
+        
+        # روند بلندمدت
+        if is_above_sma200 and current_data["sma50"] > current_data["sma200"]:
+            long_term_trend = "صعودی قوی"
+        elif is_above_sma200:
+            long_term_trend = "صعودی"
+        elif is_above_sma50:
+            long_term_trend = "خنثی"
+        else:
+            long_term_trend = "نزولی"
+        
+        # روند کوتاه‌مدت
+        if is_above_sma7 and current_data["sma7"] > current_data["sma25"]:
+            short_term_trend = "صعودی قوی"
+        elif is_above_sma7:
+            short_term_trend = "صعودی"
+        else:
+            short_term_trend = "نزولی"
+        
+        # تقاطع‌ها
+        crosses = []
+        
+        # تقاطع EMA 12 و 26 (سیگنال MACD)
+        if df['ema12'].iloc[-1] > df['ema26'].iloc[-1] and df['ema12'].iloc[-2] <= df['ema26'].iloc[-2]:
+            crosses.append("تقاطع صعودی EMA 12/26")
+        elif df['ema12'].iloc[-1] < df['ema26'].iloc[-1] and df['ema12'].iloc[-2] >= df['ema26'].iloc[-2]:
+            crosses.append("تقاطع نزولی EMA 12/26")
+        
+        # تقاطع SMA 50 و 200 (صلیب طلایی/مرگ)
+        if df['sma50'].iloc[-1] > df['sma200'].iloc[-1] and df['sma50'].iloc[-2] <= df['sma200'].iloc[-2]:
+            crosses.append("صلیب طلایی (SMA 50/200)")
+        elif df['sma50'].iloc[-1] < df['sma200'].iloc[-1] and df['sma50'].iloc[-2] >= df['sma200'].iloc[-2]:
+            crosses.append("صلیب مرگ (SMA 50/200)")
+        
+        return {
+            "symbol": symbol,
+            "timeframe": timeframe,
+            "moving_averages": current_data,
+            "long_term_trend": long_term_trend,
+            "short_term_trend": short_term_trend,
+            "crosses": crosses,
+            "calculation_time": get_current_datetime()
+        }
+```
+
+## خلاصه مشکلات شناسایی شده و پیشنهادات اصلاحی
+
+بر اساس همه فایل‌های بررسی شده، مشکلات کلی زیر را شناسایی کردم:
+
+1. **مسیرهای import**:
+   - از `from src.xxx import` در بسیاری از فایل‌ها استفاده شده است
+   - پیشنهاد: تغییر همه importها به `from utils.xxx import` بدون پیشوند `src`
+
+2. **سازگاری async/await**:
+   - برخی توابع با `async/await` و برخی به شکل سنتی پیاده‌سازی شده‌اند
+   - پیشنهاد: یکپارچه‌سازی استفاده از `async/await` در همه ماژول‌ها
+
+3. **مدیریت زمان**:
+   - استفاده از `datetime.now()` بدون منطقه زمانی در کدها
+   - پیشنهاد: استفاده از `get_current_datetime()` در همه فایل‌ها
+
+4. **فایل‌های مفقوده**:
+   - برخی ماژول‌های کلیدی هنوز ارسال نشده‌اند
+   - پیشنهاد: ایجاد ماژول‌های `utils/validation.py`, `utils/security.py`, `models/user.py` و غیره
+
+5. **تایپ هینت‌ها**:
+   - استفاده ناکافی از Type Hints در برخی فایل‌ها
+   - پیشنهاد: افزودن Type Hints به همه توابع برای افزایش خوانایی و تست کد
+
+آیا مایلید با فایل‌های دیگری از پروژه ادامه دهیم؟
+
+# بررسی فایل‌های یادگیری ماشین
+
+با سلام مجدد. از همکاری شما هم خوشحالم. اکنون سه فایل مربوط به بخش یادگیری ماشین را بررسی کردم که همگی خالی هستند. این فایل‌ها بخش مهمی از سیستم هوش مصنوعی پروژه شما هستند که برای پیش‌بینی قیمت‌ها و تحلیل‌های خودکار استفاده می‌شوند.
+
+## پیشنهادات برای فایل‌های یادگیری ماشین
+
+### ۱. فایل `5.6.5.1. __init__.py`
+
+این فایل باید کلاس‌های اصلی ماژول را import کند:
+
+```python
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+ماژول الگوریتم‌های یادگیری ماشین.
+
+این ماژول شامل الگوریتم‌های یادگیری ماشین مختلف برای پیش‌بینی بازار ارز دیجیتال
+اعم از رگرسیون (پیش‌بینی قیمت) و طبقه‌بندی (پیش‌بینی جهت) است.
+"""
+
+from .regression import (
+    BaseRegressionModel,
+    LinearRegressionModel,
+    SVRModel,
+    RandomForestRegressionModel,
+    LSTMRegressionModel
+)
+
+from .classification import (
+    BaseClassificationModel,
+    SVMClassifier,
+    RandomForestClassifier,
+    LogisticRegressionClassifier,
+    LSTMClassifier
+)
+
+__all__ = [
+    'BaseRegressionModel',
+    'LinearRegressionModel',
+    'SVRModel',
+    'RandomForestRegressionModel',
+    'LSTMRegressionModel',
+    'BaseClassificationModel',
+    'SVMClassifier',
+    'RandomForestClassifier',
+    'LogisticRegressionClassifier',
+    'LSTMClassifier'
+]
+```
+
+### ۲. فایل `5.6.5.2. regression.py`
+
+این فایل باید مدل‌های رگرسیون را پیاده‌سازی کند:
+
+```python
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+ماژول الگوریتم‌های رگرسیون.
+
+این ماژول الگوریتم‌های رگرسیون مختلف را برای پیش‌بینی قیمت آینده
+ارزهای دیجیتال پیاده‌سازی می‌کند.
+"""
+
+import logging
+import numpy as np
+import pandas as pd
+from typing import Dict, List, Optional, Any, Tuple, Union
+from abc import ABC, abstractmethod
+import os
+import pickle
+from datetime import datetime, timedelta
+
+from utils.timezone_utils import get_current_datetime
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
+
+try:
+    from sklearn.linear_model import LinearRegression
+    from sklearn.svm import SVR
+    from sklearn.ensemble import RandomForestRegressor
+    from sklearn.preprocessing import MinMaxScaler
+    from sklearn.model_selection import train_test_split
+    from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+    SKLEARN_AVAILABLE = True
+except ImportError:
+    logger.warning("sklearn کتابخانه پیدا نشد. برخی مدل‌های رگرسیون قابل استفاده نخواهند بود.")
+    SKLEARN_AVAILABLE = False
+
+try:
+    import tensorflow as tf
+    from tensorflow.keras.models import Sequential
+    from tensorflow.keras.layers import Dense, LSTM, Dropout
+    from tensorflow.keras.callbacks import EarlyStopping
+    TF_AVAILABLE = True
+except ImportError:
+    logger.warning("tensorflow کتابخانه پیدا نشد. مدل LSTM قابل استفاده نخواهد بود.")
+    TF_AVAILABLE = False
+
+
+class BaseRegressionModel(ABC):
+    """کلاس پایه برای مدل‌های رگرسیون."""
+    
+    def __init__(self, model_path: Optional[str] = None):
+        """
+        مقداردهی اولیه کلاس پایه مدل رگرسیون.
+        
+        Args:
+            model_path: مسیر فایل مدل (اختیاری)
+        """
+        self.model = None
+        self.model_path = model_path
+        self.scaler_X = None
+        self.scaler_y = None
+        self.is_trained = False
+        
+        # بارگذاری مدل اگر مسیر داده شده باشد
+        if model_path and os.path.exists(model_path):
+            self.load_model(model_path)
+    
+    @abstractmethod
+    def _create_model(self) -> Any:
+        """
+        ایجاد مدل رگرسیون.
+        
+        Returns:
+            مدل رگرسیون
+        """
+        pass
+    
+    def train(self, X: np.ndarray, y: np.ndarray, test_size: float = 0.2, **kwargs) -> float:
+        """
+        آموزش مدل با داده‌های ورودی.
+        
+        Args:
+            X: ویژگی‌های ورودی
+            y: مقادیر هدف
+            test_size: نسبت داده‌های تست
+            **kwargs: پارامترهای اضافی
+            
+        Returns:
+            float: دقت مدل (R²)
+        """
+        # تقسیم داده‌ها به مجموعه‌های آموزش و تست
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=42)
+        
+        # نرمال‌سازی داده‌ها
+        self.scaler_X = MinMaxScaler()
+        X_train_scaled = self.scaler_X.fit_transform(X_train)
+        X_test_scaled = self.scaler_X.transform(X_test)
+        
+        self.scaler_y = MinMaxScaler()
+        y_train_scaled = self.scaler_y.fit_transform(y_train.reshape(-1, 1)).flatten()
+        y_test_scaled = self.scaler_y.transform(y_test.reshape(-1, 1)).flatten()
+        
+        # ایجاد مدل اگر وجود ندارد
+        if self.model is None:
+            self.model = self._create_model()
+            
+        # آموزش مدل
+        self._fit_model(X_train_scaled, y_train_scaled, **kwargs)
+        
+        # ارزیابی مدل
+        y_pred_scaled = self.model.predict(X_test_scaled)
+        y_pred = self.scaler_y.inverse_transform(y_pred_scaled.reshape(-1, 1)).flatten()
+        
+        mse = mean_squared_error(y_test, y_pred)
+        mae = mean_absolute_error(y_test, y_pred)
+        r2 = r2_score(y_test, y_pred)
+        
+        logger.info(f"نتایج آموزش مدل: MSE={mse:.4f}, MAE={mae:.4f}, R²={r2:.4f}")
+        
+        self.is_trained = True
+        return r2
+    
+    def _fit_model(self, X_train: np.ndarray, y_train: np.ndarray, **kwargs) -> None:
+        """
+        آموزش مدل با داده‌های آموزشی.
+        
+        Args:
+            X_train: ویژگی‌های آموزشی
+            y_train: مقادیر هدف آموزشی
+            **kwargs: پارامترهای اضافی
+        """
+        self.model.fit(X_train, y_train, **kwargs)
+    
+    def predict(self, X: np.ndarray) -> np.ndarray:
+        """
+        پیش‌بینی با استفاده از مدل آموزش‌دیده.
+        
+        Args:
+            X: ویژگی‌های ورودی
+            
+        Returns:
+            np.ndarray: مقادیر پیش‌بینی‌شده
+        """
+        if not self.is_trained:
+            raise ValueError("مدل هنوز آموزش داده نشده است.")
+        
+        # نرمال‌سازی داده‌های ورودی
+        X_scaled = self.scaler_X.transform(X)
+        
+        # پیش‌بینی
+        y_pred_scaled = self.model.predict(X_scaled)
+        
+        # برگرداندن مقیاس پیش‌بینی‌ها
+        if isinstance(y_pred_scaled, np.ndarray) and len(y_pred_scaled.shape) == 1:
+            y_pred_scaled = y_pred_scaled.reshape(-1, 1)
+        return self.scaler_y.inverse_transform(y_pred_scaled).flatten()
+    
+    def save_model(self, model_path: Optional[str] = None) -> str:
+        """
+        ذخیره مدل در فایل.
+        
+        Args:
+            model_path: مسیر فایل مدل (اختیاری)
+            
+        Returns:
+            str: مسیر فایل ذخیره‌شده
+        """
+        if not self.is_trained:
+            raise ValueError("مدل هنوز آموزش داده نشده است.")
+        
+        if model_path:
+            self.model_path = model_path
+        elif not self.model_path:
+            timestamp = get_current_datetime().strftime("%Y%m%d%H%M%S")
+            self.model_path = f"ml/models/regression_{self.__class__.__name__}_{timestamp}.pkl"
+        
+        # اطمینان از وجود دایرکتوری
+        os.makedirs(os.path.dirname(self.model_path), exist_ok=True)
+        
+        # ذخیره مدل و مقیاس‌دهنده‌ها
+        model_data = {
+            'model': self.model,
+            'scaler_X': self.scaler_X,
+            'scaler_y': self.scaler_y,
+            'timestamp': get_current_datetime(),
+            'model_type': self.__class__.__name__
+        }
+        
+        with open(self.model_path, 'wb') as f:
+            pickle.dump(model_data, f)
+        
+        logger.info(f"مدل در مسیر {self.model_path} ذخیره شد.")
+        return self.model_path
+    
+    def load_model(self, model_path: str) -> bool:
+        """
+        بارگذاری مدل از فایل.
+        
+        Args:
+            model_path: مسیر فایل مدل
+            
+        Returns:
+            bool: موفقیت در بارگذاری
+        """
+        try:
+            with open(model_path, 'rb') as f:
+                model_data = pickle.load(f)
+            
+            self.model = model_data['model']
+            self.scaler_X = model_data['scaler_X']
+            self.scaler_y = model_data['scaler_y']
+            self.model_path = model_path
+            self.is_trained = True
+            
+            logger.info(f"مدل {model_data.get('model_type', 'نامشخص')} از مسیر {model_path} بارگذاری شد.")
+            return True
+            
+        except Exception as e:
+            logger.error(f"خطا در بارگذاری مدل از {model_path}: {str(e)}")
+            return False
+
+
+class LinearRegressionModel(BaseRegressionModel):
+    """کلاس مدل رگرسیون خطی."""
+    
+    def _create_model(self) -> Any:
+        """
+        ایجاد مدل رگرسیون خطی.
+        
+        Returns:
+            LinearRegression: مدل رگرسیون خطی
+        """
+        if not SKLEARN_AVAILABLE:
+            raise ImportError("کتابخانه sklearn برای استفاده از مدل رگرسیون خطی نیاز است.")
+        
+        return LinearRegression()
+
+
+class SVRModel(BaseRegressionModel):
+    """کلاس مدل رگرسیون بردار پشتیبان."""
+    
+    def __init__(self, kernel: str = 'rbf', C: float = 1.0, epsilon: float = 0.1, model_path: Optional[str] = None):
+        """
+        مقداردهی اولیه کلاس مدل SVR.
+        
+        Args:
+            kernel: تابع کرنل ('linear', 'poly', 'rbf', 'sigmoid')
+            C: پارامتر تنظیم
+            epsilon: حاشیه خطا
+            model_path: مسیر فایل مدل (اختیاری)
+        """
+        self.kernel = kernel
+        self.C = C
+        self.epsilon = epsilon
+        super().__init__(model_path)
+    
+    def _create_model(self) -> Any:
+        """
+        ایجاد مدل رگرسیون بردار پشتیبان.
+        
+        Returns:
+            SVR: مدل رگرسیون بردار پشتیبان
+        """
+        if not SKLEARN_AVAILABLE:
+            raise ImportError("کتابخانه sklearn برای استفاده از مدل SVR نیاز است.")
+        
+        return SVR(kernel=self.kernel, C=self.C, epsilon=self.epsilon)
+
+
+class RandomForestRegressionModel(BaseRegressionModel):
+    """کلاس مدل رگرسیون جنگل تصادفی."""
+    
+    def __init__(self, n_estimators: int = 100, max_depth: Optional[int] = None, 
+                model_path: Optional[str] = None):
+        """
+        مقداردهی اولیه کلاس مدل رگرسیون جنگل تصادفی.
+        
+        Args:
+            n_estimators: تعداد درختان
+            max_depth: حداکثر عمق درختان
+            model_path: مسیر فایل مدل (اختیاری)
+        """
+        self.n_estimators = n_estimators
+        self.max_depth = max_depth
+        super().__init__(model_path)
+    
+    def _create_model(self) -> Any:
+        """
+        ایجاد مدل رگرسیون جنگل تصادفی.
+        
+        Returns:
+            RandomForestRegressor: مدل رگرسیون جنگل تصادفی
+        """
+        if not SKLEARN_AVAILABLE:
+            raise ImportError("کتابخانه sklearn برای استفاده از مدل Random Forest نیاز است.")
+        
+        return RandomForestRegressor(
+            n_estimators=self.n_estimators,
+            max_depth=self.max_depth,
+            random_state=42
+        )
+    
+    def feature_importance(self) -> Dict[int, float]:
+        """
+        استخراج اهمیت ویژگی‌ها.
+        
+        Returns:
+            Dict[int, float]: شاخص ویژگی و میزان اهمیت آن
+        """
+        if not self.is_trained:
+            raise ValueError("مدل هنوز آموزش داده نشده است.")
+        
+        importances = self.model.feature_importances_
+        return {i: importance for i, importance in enumerate(importances)}
+
+
+class LSTMRegressionModel(BaseRegressionModel):
+    """کلاس مدل LSTM برای پیش‌بینی سری زمانی."""
+    
+    def __init__(self, sequence_length: int = 10, units: int = 50, 
+                layers: int = 2, dropout: float = 0.2, model_path: Optional[str] = None):
+        """
+        مقداردهی اولیه کلاس مدل LSTM.
+        
+        Args:
+            sequence_length: طول توالی ورودی
+            units: تعداد واحدهای LSTM
+            layers: تعداد لایه‌های LSTM
+            dropout: نرخ dropout
+            model_path: مسیر فایل مدل (اختیاری)
+        """
+        self.sequence_length = sequence_length
+        self.units = units
+        self.layers = layers
+        self.dropout = dropout
+        self.X_sequences = None
+        super().__init__(model_path)
+    
+    def _create_model(self) -> Any:
+        """
+        ایجاد مدل LSTM.
+        
+        Returns:
+            Sequential: مدل LSTM
+        """
+        if not TF_AVAILABLE:
+            raise ImportError("کتابخانه tensorflow برای استفاده از مدل LSTM نیاز است.")
+        
+        model = Sequential()
+        
+        # لایه اول LSTM
+        model.add(LSTM(
+            units=self.units,
+            return_sequences=self.layers > 1,
+            input_shape=(self.sequence_length, self.X_sequences.shape[2])
+        ))
+        model.add(Dropout(self.dropout))
+        
+        # لایه‌های میانی
+        for i in range(1, self.layers-1):
+            model.add(LSTM(units=self.units, return_sequences=True))
+            model.add(Dropout(self.dropout))
+        
+        # لایه آخر LSTM (اگر بیش از یک لایه داریم)
+        if self.layers > 1:
+            model.add(LSTM(units=self.units))
+            model.add(Dropout(self.dropout))
+        
+        # لایه خروجی
+        model.add(Dense(units=1))
+        
+        model.compile(optimizer='adam', loss='mean_squared_error')
+        return model
+    
+    def _prepare_sequences(self, X: np.ndarray, y: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        آماده‌سازی توالی‌های داده برای LSTM.
+        
+        Args:
+            X: ویژگی‌های ورودی
+            y: مقادیر هدف
+            
+        Returns:
+            Tuple[np.ndarray, np.ndarray]: توالی‌های X و y
+        """
+        X_sequences = []
+        y_sequences = []
+        
+        for i in range(len(X) - self.sequence_length):
+            X_sequences.append(X[i:i+self.sequence_length])
+            y_sequences.append(y[i+self.sequence_length])
+        
+        return np.array(X_sequences), np.array(y_sequences)
+    
+    def train(self, X: np.ndarray, y: np.ndarray, test_size: float = 0.2, 
+             epochs: int = 50, batch_size: int = 32, **kwargs) -> float:
+        """
+        آموزش مدل LSTM.
+        
+        Args:
+            X: ویژگی‌های ورودی
+            y: مقادیر هدف
+            test_size: نسبت داده‌های تست
+            epochs: تعداد دوره‌های آموزش
+            batch_size: اندازه دسته
+            **kwargs: پارامترهای اضافی
+            
+        Returns:
+            float: دقت مدل (R²)
+        """
+        # نرمال‌سازی داده‌ها
+        self.scaler_X = MinMaxScaler()
+        X_scaled = self.scaler_X.fit_transform(X)
+        
+        self.scaler_y = MinMaxScaler()
+        y_scaled = self.scaler_y.fit_transform(y.reshape(-1, 1)).flatten()
+        
+        # آماده‌سازی توالی‌ها
+        X_sequences, y_sequences = self._prepare_sequences(
+            X_scaled.reshape(X_scaled.shape[0], 1, X_scaled.shape[1]), 
+            y_scaled
+        )
+        
+        self.X_sequences = X_sequences
+        
+        # تقسیم داده‌ها به مجموعه‌های آموزش و تست
+        split_idx = int(len(X_sequences) * (1 - test_size))
+        X_train, X_test = X_sequences[:split_idx], X_sequences[split_idx:]
+        y_train, y_test = y_sequences[:split_idx], y_sequences[split_idx:]
+        
+        # ایجاد مدل اگر وجود ندارد
+        if self.model is None:
+            self.model = self._create_model()
+        
+        # تنظیم توقف زودهنگام
+        early_stopping = EarlyStopping(
+            monitor='val_loss',
+            patience=10,
+            restore_best_weights=True
+        )
+        
+        # آموزش مدل
+        history = self.model.fit(
+            X_train, y_train,
+            epochs=epochs,
+            batch_size=batch_size,
+            validation_data=(X_test, y_test),
+            callbacks=[early_stopping],
+            verbose=1
+        )
+        
+        # ارزیابی مدل
+        y_pred_scaled = self.model.predict(X_test)
+        y_pred = self.scaler_y.inverse_transform(y_pred_scaled)
+        y_test_orig = self.scaler_y.inverse_transform(y_test.reshape(-1, 1))
+        
+        mse = mean_squared_error(y_test_orig, y_pred)
+        mae = mean_absolute_error(y_test_orig, y_pred)
+        r2 = r2_score(y_test_orig, y_pred)
+        
+        logger.info(f"نتایج آموزش مدل LSTM: MSE={mse:.4f}, MAE={mae:.4f}, R²={r2:.4f}")
+        
+        self.is_trained = True
+        return r2
+    
+    def predict(self, X: np.ndarray) -> np.ndarray:
+        """
+        پیش‌بینی با استفاده از مدل LSTM.
+        
+        Args:
+            X: ویژگی‌های ورودی (باید به اندازه sequence_length باشد)
+            
+        Returns:
+            np.ndarray: مقادیر پیش‌بینی‌شده
+        """
+        if not self.is_trained:
+            raise ValueError("مدل هنوز آموزش داده نشده است.")
+        
+        # اطمینان از ابعاد مناسب داده‌ها
+        if X.shape[0] < self.sequence_length:
+            raise ValueError(f"داده‌های ورودی باید حداقل {self.sequence_length} نمونه داشته باشند")
+        
+        # نرمال‌سازی داده‌های ورودی
+        X_scaled = self.scaler_X.transform(X)
+        
+        # آماده‌سازی توالی برای پیش‌بینی
+        if X_scaled.shape[0] > self.sequence_length:
+            # برای پیش‌بینی چندین گام
+            X_sequences = []
+            for i in range(X_scaled.shape[0] - self.sequence_length + 1):
+                X_sequences.append(X_scaled[i:i+self.sequence_length])
+            X_sequences = np.array(X_sequences).reshape(-1, self.sequence_length, X_scaled.shape[1])
+        else:
+            # برای پیش‌بینی یک گام
+            X_sequences = X_scaled[-self.sequence_length:].reshape(1, self.sequence_length, X_scaled.shape[1])
+        
+        # پیش‌بینی
+        y_pred_scaled = self.model.predict(X_sequences)
+        
+        # برگرداندن مقیاس پیش‌بینی‌ها
+        return self.scaler_y.inverse_transform(y_pred_scaled).flatten()
+```
+
+### ۳. فایل `5.6.5.3. classification.py`
+
+این فایل باید مدل‌های طبقه‌بندی را پیاده‌سازی کند:
+
+```python
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+ماژول الگوریتم‌های طبقه‌بندی.
+
+این ماژول الگوریتم‌های طبقه‌بندی مختلف را برای پیش‌بینی جهت بازار
+ارزهای دیجیتال پیاده‌سازی می‌کند.
+"""
+
+import logging
+import numpy as np
+import pandas as pd
+from typing import Dict, List, Optional, Any, Tuple, Union
+from abc import ABC, abstractmethod
+import os
+import pickle
+from datetime import datetime, timedelta
+
+from utils.timezone_utils import get_current_datetime
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
+
+try:
+    from sklearn.svm import SVC
+    from sklearn.ensemble import RandomForestClassifier
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.preprocessing import MinMaxScaler
+    from sklearn.model_selection import train_test_split
+    from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
+    SKLEARN_AVAILABLE = True
+except ImportError:
+    logger.warning("sklearn کتابخانه پیدا نشد. برخی مدل‌های طبقه‌بندی قابل استفاده نخواهند بود.")
+    SKLEARN_AVAILABLE = False
+
+try:
+    import tensorflow as tf
+    from tensorflow.keras.models import Sequential
+    from tensorflow.keras.layers import Dense, LSTM, Dropout
+    from tensorflow.keras.callbacks import EarlyStopping
+    TF_AVAILABLE = True
+except ImportError:
+    logger.warning("tensorflow کتابخانه پیدا نشد. مدل LSTM قابل استفاده نخواهد بود.")
+    TF_AVAILABLE = False
+
+
+class BaseClassificationModel(ABC):
+    """کلاس پایه برای مدل‌های طبقه‌بندی."""
+    
+    def __init__(self, model_path: Optional[str] = None):
+        """
+        مقداردهی اولیه کلاس پایه مدل طبقه‌بندی.
+        
+        Args:
+            model_path: مسیر فایل مدل (اختیاری)
+        """
+        self.model = None
+        self.model_path = model_path
+        self.scaler = None
+        self.classes = None
+        self.is_trained = False
+        
+        # بارگذاری مدل اگر مسیر داده شده باشد
+        if model_path and os.path.exists(model_path):
+            self.load_model(model_path)
+    
+    @abstractmethod
+    def _create_model(self) -> Any:
+        """
+        ایجاد مدل طبقه‌بندی.
+        
+        Returns:
+            مدل طبقه‌بندی
+        """
+        pass
+    
+    def train(self, X: np.ndarray, y: np.ndarray, test_size: float = 0.2, **kwargs) -> Dict[str, float]:
+        """
+        آموزش مدل با داده‌های ورودی.
+        
+        Args:
+            X: ویژگی‌های ورودی
+            y: کلاس‌های هدف
+            test_size: نسبت داده‌های تست
+            **kwargs: پارامترهای اضافی
+            
+        Returns:
+            Dict[str, float]: معیارهای ارزیابی مدل
+        """
+        # ذخیره کلاس‌ها
+        self.classes = np.unique(y)
+        
+        # تقسیم داده‌ها به مجموعه‌های آموزش و تست
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=42, stratify=y)
+        
+        # نرمال‌سازی داده‌ها
+        self.scaler = MinMaxScaler()
+        X_train_scaled = self.scaler.fit_transform(X_train)
+        X_test_scaled = self.scaler.transform(X_test)
+        
+        # ایجاد مدل اگر وجود ندارد
+        if self.model is None:
+            self.model = self._create_model()
+            
+        # آموزش مدل
+        self._fit_model(X_train_scaled, y_train, **kwargs)
+        
+        # ارزیابی مدل
+        y_pred = self.model.predict(X_test_scaled)
+        
+        # محاسبه معیارهای ارزیابی
+        accuracy = accuracy_score(y_test, y_pred)
+        precision = precision_score(y_test, y_pred, average='weighted') if len(self.classes) > 2 else precision_score(y_test, y_pred)
+        recall = recall_score(y_test, y_pred, average='weighted') if len(self.classes) > 2 else recall_score(y_test, y_pred)
+        f1 = f1_score(y_test, y_pred, average='weighted') if len(self.classes) > 2 else f1_score(y_test, y_pred)
+        
+        # ماتریس اغتشاش
+        cm = confusion_matrix(y_test, y_pred)
+        
+        # افزودن نتایج به لاگ
+        logger.info(f"نتایج آموزش مدل طبقه‌بندی: دقت={accuracy:.4f}, دقت عملیاتی={precision:.4f}, فراخوانی={recall:.4f}, F1={f1:.4f}")
+        logger.info(f"ماتریس اغتشاش:\n{cm}")
+        
+        self.is_trained = True
+        return {
+            'accuracy': accuracy,
+            'precision': precision,
+            'recall': recall,
+            'f1': f1
+        }
+    
+    def _fit_model(self, X_train: np.ndarray, y_train: np.ndarray, **kwargs) -> None:
+        """
+        آموزش مدل با داده‌های آموزشی.
+        
+        Args:
+            X_train: ویژگی‌های آموزشی
+            y_train: کلاس‌های هدف آموزشی
+            **kwargs: پارامترهای اضافی
+        """
+        self.model.fit(X_train, y_train, **kwargs)
+    
+    def predict(self, X: np.ndarray) -> np.ndarray:
+        """
+        پیش‌بینی کلاس‌ها با استفاده از مدل آموزش‌دیده.
+        
+        Args:
+            X: ویژگی‌های ورودی
+            
+        Returns:
+            np.ndarray: کلاس‌های پیش‌بینی‌شده
+        """
+        if not self.is_trained:
+            raise ValueError("مدل هنوز آموزش داده نشده است.")
+        
+        # نرمال‌سازی داده‌های ورودی
+        X_scaled = self.scaler.transform(X)
+        
+        # پیش‌بینی
+        return self.model.predict(X_scaled)
+    
+    def predict_proba(self, X: np.ndarray) -> np.ndarray:
+        """
+        پیش‌بینی احتمالات کلاس‌ها با استفاده از مدل آموزش‌دیده.
+        
+        Args:
+            X: ویژگی‌های ورودی
+            
+        Returns:
+            np.ndarray: احتمالات کلاس‌های پیش‌بینی‌شده
+        """
+        if not self.is_trained:
+            raise ValueError("مدل هنوز آموزش داده نشده است.")
+        
+        if not hasattr(self.model, 'predict_proba'):
+            raise NotImplementedError("این مدل از predict_proba پشتیبانی نمی‌کند")
+        
+        # نرمال‌سازی داده‌های ورودی
+        X_scaled = self.scaler.transform(X)
+        
+        # پیش‌بینی احتمالات
+        return self.model.predict_proba(X_scaled)
+    
+    def save_model(self, model_path: Optional[str] = None) -> str:
+        """
+        ذخیره مدل در فایل.
+        
+        Args:
+            model_path: مسیر فایل مدل (اختیاری)
+            
+        Returns:
+            str: مسیر فایل ذخیره‌شده
+        """
+        if not self.is_trained:
+            raise ValueError("مدل هنوز آموزش داده نشده است.")
+        
+        if model_path:
+            self.model_path = model_path
+        elif not self.model_path:
+            timestamp = get_current_datetime().strftime("%Y%m%d%H%M%S")
+            self.model_path = f"ml/models/classification_{self.__class__.__name__}_{timestamp}.pkl"
+        
+        # اطمینان از وجود دایرکتوری
+        os.makedirs(os.path.dirname(self.model_path), exist_ok=True)
+        
+        # ذخیره مدل و مقیاس‌دهنده‌ها
+        model_data = {
+            'model': self.model,
+            'scaler': self.scaler,
+            'classes': self.classes,
+            'timestamp': get_current_datetime(),
+            'model_type': self.__class__.__name__
+        }
+        
+        with open(self.model_path, 'wb') as f:
+            pickle.dump(model_data, f)
+        
+        logger.info(f"مدل در مسیر {self.model_path} ذخیره شد.")
+        return self.model_path
+    
+    def load_model(self, model_path: str) -> bool:
+        """
+        بارگذاری مدل از فایل.
+        
+        Args:
+            model_path: مسیر فایل مدل
+            
+        Returns:
+            bool: موفقیت در بارگذاری
+        """
+        try:
+            with open(model_path, 'rb') as f:
+                model_data = pickle.load(f)
+            
+            self.model = model_data['model']
+            self.scaler = model_data['scaler']
+            self.classes = model_data['classes']
+            self.model_path = model_path
+            self.is_trained = True
+            
+            logger.info(f"مدل {model_data.get('model_type', 'نامشخص')} از مسیر {model_path} بارگذاری شد.")
+            return True
+            
+        except Exception as e:
+            logger.error(f"خطا در بارگذاری مدل از {model_path}: {str(e)}")
+            return False
+
+
+class SVMClassifier(BaseClassificationModel):
+    """کلاس مدل طبقه‌بندی SVM."""
+    
+    def __init__(self, kernel: str = 'rbf', C: float = 1.0, gamma: str = 'scale', 
+                model_path: Optional[str] = None):
+        """
+        مقداردهی اولیه کلاس مدل SVM.
+        
+        Args:
+            kernel: تابع کرنل ('linear', 'poly', 'rbf', 'sigmoid')
+            C: پارامتر تنظیم
+            gamma: پارامتر گاما
+            model_path: مسیر فایل مدل (اختیاری)
+        """
+        self.kernel = kernel
+        self.C = C
+        self.gamma = gamma
+        super().__init__(model_path)
+    
+    def _create_model(self) -> Any:
+        """
+        ایجاد مدل طبقه‌بندی SVM.
+        
+        Returns:
+            SVC: مدل طبقه‌بندی SVM
+        """
+        if not SKLEARN_AVAILABLE:
+            raise ImportError("کتابخانه sklearn برای استفاده از مدل SVM نیاز است.")
+        
+        return SVC(
+            kernel=self.kernel,
+            C=self.C,
+            gamma=self.gamma,
+            probability=True,
+            random_state=42
+        )
+
+
+class RandomForestClassifier(BaseClassificationModel):
+    """کلاس مدل طبقه‌بندی جنگل تصادفی."""
+    
+    def __init__(self, n_estimators: int = 100, max_depth: Optional[int] = None, 
+                model_path: Optional[str] = None):
+        """
+        مقداردهی اولیه کلاس مدل جنگل تصادفی.
+        
+        Args:
+            n_estimators: تعداد درختان
+            max_depth: حداکثر عمق درختان
+            model_path: مسیر فایل مدل (اختیاری)
+        """
+        self.n_estimators = n_estimators
+        self.max_depth = max_depth
+        super().__init__(model_path)
+    
+    def _create_model(self) -> Any:
+        """
+        ایجاد مدل طبقه‌بندی جنگل تصادفی.
+        
+        Returns:
+            RandomForestClassifier: مدل طبقه‌بندی جنگل تصادفی
+        """
+        if not SKLEARN_AVAILABLE:
+            raise ImportError("کتابخانه sklearn برای استفاده از مدل Random Forest نیاز است.")
+        
+        return RandomForestClassifier(
+            n_estimators=self.n_estimators,
+            max_depth=self.max_depth,
+            random_state=42
+        )
+    
+    def feature_importance(self) -> Dict[int, float]:
+        """
+        استخراج اهمیت ویژگی‌ها.
+        
+        Returns:
+            Dict[int, float]: شاخص ویژگی و میزان اهمیت آن
+        """
+        if not self.is_trained:
+            raise ValueError("مدل هنوز آموزش داده نشده است.")
+        
+        importances = self.model.feature_importances_
+        return {i: importance for i, importance in enumerate(importances)}
+
+
+class LogisticRegressionClassifier(BaseClassificationModel):
+    """کلاس مدل طبقه‌بندی رگرسیون لجستیک."""
+    
+    def __init__(self, C: float = 1.0, penalty: str = 'l2', solver: str = 'lbfgs', 
+                model_path: Optional[str] = None):
+        """
+        مقداردهی اولیه کلاس مدل رگرسیون لجستیک.
+        
+        Args:
+            C: پارامتر تنظیم
+            penalty: تابع جریمه ('l1', 'l2', 'elasticnet', None)
+            solver: الگوریتم حل
+            model_path: مسیر فایل مدل (اختیاری)
+        """
+        self.C = C
+        self.penalty = penalty
+        self.solver = solver
+        super().__init__(model_path)
+    
+    def _create_model(self) -> Any:
+        """
+        ایجاد مدل طبقه‌بندی رگرسیون لجستیک.
+        
+        Returns:
+            LogisticRegression: مدل طبقه‌بندی رگرسیون لجستیک
+        """
+        if not SKLEARN_AVAILABLE:
+            raise ImportError("کتابخانه sklearn برای استفاده از مدل Logistic Regression نیاز است.")
+        
+        return LogisticRegression(
+            C=self.C,
+            penalty=self.penalty,
+            solver=self.solver,
+            random_state=42,
+            max_iter=1000
+        )
+
+
+class LSTMClassifier(BaseClassificationModel):
+    """کلاس مدل LSTM برای طبقه‌بندی سری زمانی."""
+    
+    def __init__(self, sequence_length: int = 10, units: int = 50, 
+                layers: int = 2, dropout: float = 0.2, model_path: Optional[str] = None):
+        """
+        مقداردهی اولیه کلاس مدل LSTM.
+        
+        Args:
+            sequence_length: طول توالی ورودی
+            units: تعداد واحدهای LSTM
+            layers: تعداد لایه‌های LSTM
+            dropout: نرخ dropout
+            model_path: مسیر فایل مدل (اختیاری)
+        """
+        self.sequence_length = sequence_length
+        self.units = units
+        self.layers = layers
+        self.dropout = dropout
+        self.X_sequences = None
+        self.num_classes = None
+        super().__init__(model_path)
+    
+    def _create_model(self) -> Any:
+        """
+        ایجاد مدل LSTM.
+        
+        Returns:
+            Sequential: مدل LSTM
+        """
+        if not TF_AVAILABLE:
+            raise ImportError("کتابخانه tensorflow برای استفاده از مدل LSTM نیاز است.")
+        
+        model = Sequential()
+        
+        # لایه اول LSTM
+        model.add(LSTM(
+            units=self.units,
+            return_sequences=self.layers > 1,
+            input_shape=(self.sequence_length, self.X_sequences.shape[2])
+        ))
+        model.add(Dropout(self.dropout))
+        
+        # لایه‌های میانی
+        for i in range(1, self.layers-1):
+            model.add(LSTM(units=self.units, return_sequences=True))
+            model.add(Dropout(self.dropout))
+        
+        # لایه آخر LSTM (اگر بیش از یک لایه داریم)
+        if self.layers > 1:
+            model.add(LSTM(units=self.units))
+            model.add(Dropout(self.dropout))
+        
+        # لایه خروجی
+        if self.num_classes > 2:
+            model.add(Dense(units=self.num_classes, activation='softmax'))
+            loss = 'sparse_categorical_crossentropy'
+        else:
+            model.add(Dense(units=1, activation='sigmoid'))
+            loss = 'binary_crossentropy'
+        
+        model.compile(optimizer='adam', loss=loss, metrics=['accuracy'])
+        return model
+    
+    def _prepare_sequences(self, X: np.ndarray, y: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        آماده‌سازی توالی‌های داده برای LSTM.
+        
+        Args:
+            X: ویژگی‌های ورودی
+            y: کلاس‌های هدف
+            
+        Returns:
+            Tuple[np.ndarray, np.ndarray]: توالی‌های X و y
+        """
+        X_sequences = []
+        y_sequences = []
+        
+        for i in range(len(X) - self.sequence_length):
+            X_sequences.append(X[i:i+self.sequence_length])
+            y_sequences.append(y[i+self.sequence_length])
+        
+        return np.array(X_sequences), np.array(y_sequences)
+    
+    def train(self, X: np.ndarray, y: np.ndarray, test_size: float = 0.2, 
+             epochs: int = 50, batch_size: int = 32, **kwargs) -> Dict[str, float]:
+        """
+        آموزش مدل LSTM.
+        
+        Args:
+            X: ویژگی‌های ورودی
+            y: کلاس‌های هدف
+            test_size: نسبت داده‌های تست
+            epochs: تعداد دوره‌های آموزش
+            batch_size: اندازه دسته
+            **kwargs: پارامترهای اضافی
+            
+        Returns:
+            Dict[str, float]: معیارهای ارزیابی مدل
+        """
+        # ذخیره کلاس‌ها
+        self.classes = np.unique(y)
+        self.num_classes = len(self.classes)
+        
+        # نرمال‌سازی داده‌ها
+        self.scaler = MinMaxScaler()
+        X_scaled = self.scaler.fit_transform(X)
+        
+        # آماده‌سازی توالی‌ها
+        X_sequences, y_sequences = self._prepare_sequences(
+            X_scaled.reshape(X_scaled.shape[0], 1, X_scaled.shape[1]), 
+            y
+        )
+        
+        self.X_sequences = X_sequences
+        
+        # تقسیم داده‌ها به مجموعه‌های آموزش و تست
+        split_idx = int(len(X_sequences) * (1 - test_size))
+        X_train, X_test = X_sequences[:split_idx], X_sequences[split_idx:]
+        y_train, y_test = y_sequences[:split_idx], y_sequences[split_idx:]
+        
+        # ایجاد مدل اگر وجود ندارد
+        if self.model is None:
+            self.model = self._create_model()
+        
+        # تنظیم توقف زودهنگام
+        early_stopping = EarlyStopping(
+            monitor='val_loss',
+            patience=10,
+            restore_best_weights=True
+        )
+        
+        # آموزش مدل
+        history = self.model.fit(
+            X_train, y_train,
+            epochs=epochs,
+            batch_size=batch_size,
+            validation_data=(X_test, y_test),
+            callbacks=[early_stopping],
+            verbose=1
+        )
+        
+        # ارزیابی مدل
+        loss, accuracy = self.model.evaluate(X_test, y_test, verbose=0)
+        
+        # پیش‌بینی کلاس‌ها
+        if self.num_classes > 2:
+            y_pred_proba = self.model.predict(X_test)
+            y_pred = np.argmax(y_pred_proba, axis=1)
+        else:
+            y_pred_proba = self.model.predict(X_test)
+            y_pred = (y_pred_proba > 0.5).astype(int).flatten()
+        
+        # محاسبه معیارهای ارزیابی
+        precision = precision_score(y_test, y_pred, average='weighted') if self.num_classes > 2 else precision_score(y_test, y_pred)
+        recall = recall_score(y_test, y_pred, average='weighted') if self.num_classes > 2 else recall_score(y_test, y_pred)
+        f1 = f1_score(y_test, y_pred, average='weighted') if self.num_classes > 2 else f1_score(y_test, y_pred)
+        
+        logger.info(f"نتایج آموزش مدل LSTM: دقت={accuracy:.4f}, دقت عملیاتی={precision:.4f}, فراخوانی={recall:.4f}, F1={f1:.4f}")
+        
+        self.is_trained = True
+        return {
+            'accuracy': accuracy,
+            'precision': precision,
+            'recall': recall,
+            'f1': f1
+        }
+    
+    def predict(self, X: np.ndarray) -> np.ndarray:
+        """
+        پیش‌بینی با استفاده از مدل LSTM.
+        
+        Args:
+            X: ویژگی‌های ورودی (باید به اندازه sequence_length باشد)
+            
+        Returns:
+            np.ndarray: کلاس‌های پیش‌بینی‌شده
+        """
+        if not self.is_trained:
+            raise ValueError("مدل هنوز آموزش داده نشده است.")
+        
+        # اطمینان از ابعاد مناسب داده‌ها
+        if X.shape[0] < self.sequence_length:
+            raise ValueError(f"داده‌های ورودی باید حداقل {self.sequence_length} نمونه داشته باشند")
+        
+        # نرمال‌سازی داده‌های ورودی
+        X_scaled = self.scaler.transform(X)
+        
+        # آماده‌سازی توالی برای پیش‌بینی
+        if X_scaled.shape[0] > self.sequence_length:
+            # برای پیش‌بینی چندین گام
+            X_sequences = []
+            for i in range(X_scaled.shape[0] - self.sequence_length + 1):
+                X_sequences.append(X_scaled[i:i+self.sequence_length])
+            X_sequences = np.array(X_sequences).reshape(-1, self.sequence_length, X_scaled.shape[1])
+        else:
+            # برای پیش‌بینی یک گام
+            X_sequences = X_scaled[-self.sequence_length:].reshape(1, self.sequence_length, X_scaled.shape[1])
+        
+        # پیش‌بینی
+        if self.num_classes > 2:
+            y_pred_proba = self.model.predict(X_sequences)
+            return np.argmax(y_pred_proba, axis=1)
+        else:
+            y_pred_proba = self.model.predict(X_sequences)
+            return (y_pred_proba > 0.5).astype(int).flatten()
+    
+    def predict_proba(self, X: np.ndarray) -> np.ndarray:
+        """
+        پیش‌بینی احتمالات با استفاده از مدل LSTM.
+        
+        Args:
+            X: ویژگی‌های ورودی (باید به اندازه sequence_length باشد)
+            
+        Returns:
+            np.ndarray: احتمالات کلاس‌های پیش‌بینی‌شده
+        """
+        if not self.is_trained:
+            raise ValueError("مدل هنوز آموزش داده نشده است.")
+        
+        # اطمینان از ابعاد مناسب داده‌ها
+        if X.shape[0] < self.sequence_length:
+            raise ValueError(f"داده‌های ورودی باید حداقل {self.sequence_length} نمونه داشته باشند")
+        
+        # نرمال‌سازی داده‌های ورودی
+        X_scaled = self.scaler.transform(X)
+        
+        # آماده‌سازی توالی برای پیش‌بینی
+        if X_scaled.shape[0] > self.sequence_length:
+            # برای پیش‌بینی چندین گام
+            X_sequences = []
+            for i in range(X_scaled.shape[0] - self.sequence_length + 1):
+                X_sequences.append(X_scaled[i:i+self.sequence_length])
+            X_sequences = np.array(X_sequences).reshape(-1, self.sequence_length, X_scaled.shape[1])
+        else:
+            # برای پیش‌بینی یک گام
+            X_sequences = X_scaled[-self.sequence_length:].reshape(1, self.sequence_length, X_scaled.shape[1])
+        
+        # پیش‌بینی احتمالات
+        return self.model.predict(X_sequences)
+```
+
+## خلاصه بررسی و پیشنهادات نهایی
+
+پس از بررسی تمام فایل‌های ارسال شده، مشکلات کلی و پیشنهادات زیر را می‌توانم ارائه دهم:
+
+### مشکلات کلی:
+
+1. **مسیرهای import**:
+   - تغییر `from src.xxx import` به `from xxx import` در همه فایل‌ها
+
+2. **سازگاری async/await**:
+   - یکپارچه‌سازی استفاده از `async/await` در همه ماژول‌ها
+
+3. **مدیریت زمان**:
+   - استفاده از `get_current_datetime()` به جای `datetime.now()`
+
+4. **وابستگی‌های کتابخانه‌ای**:
+   - اضافه کردن `scikit-learn`، `tensorflow` و سایر کتابخانه‌های مورد نیاز به `requirements.txt`
+
+5. **ماژول‌های مفقوده**:
+   - ایجاد ماژول‌های `utils/validation.py`، `utils/security.py` و غیره
+
+6. **فایل‌های پایه**:
+   - تکمیل فایل‌های `.env`، `.gitignore` و `LICENSE`
+
+### اقدامات بعدی پیشنهادی:
+
+1. **تکمیل فایل requirements.txt**:
+   ```
+   python-telegram-bot>=20.0
+   python-dotenv>=1.0.0
+   pytz>=2023.3
+   requests>=2.28.0
+   pandas>=2.0.0
+   matplotlib>=3.7.0
+   numpy>=1.24.0
+   SQLAlchemy>=2.0.0
+   cryptography>=41.0.0
+   scikit-learn>=1.3.0
+   tensorflow>=2.12.0
+   aiohttp>=3.8.0
+   pylint>=2.17.0
+   pytest>=7.3.1
+   black>=23.3.0
+   ```
+
+2. **ایجاد یک اسکریپت برای اصلاح خودکار مسیرهای import**:
+   - ایجاد اسکریپت در `tools/fix_imports.py` برای اصلاح مسیرهای import
+
+3. **ایجاد ماژول‌های مفقوده**:
+   - `utils/validation.py` (نمونه در بررسی قبلی ارائه شد)
+   - `utils/security.py` برای توابع رمزنگاری و امنیتی
+   - `utils/notification.py` برای مدیریت اعلان‌ها
+   - `models/user.py` و `models/subscription.py`
+
+4. **تکمیل پیاده‌سازی ماژول‌های هسته‌ای**:
+   - تکمیل کلاس‌های هندلرهای تلگرام
+   - پیاده‌سازی ماژول حسابداری و پرداخت
+
+آیا سوالات یا نیازهای خاصی دارید که بتوانم در ادامه به آنها بپردازم؟
+
+# بررسی ماژول‌های Utils
+
+با سلام مجدد. متشکرم از اینکه فایل‌های بیشتری را در اختیارم قرار دادید. در این مرحله، من ماژول‌های کمکی (utils) را بررسی کردم که عملکردهای اساسی برای پروژه را فراهم می‌کنند. این فایل‌ها به‌خوبی توسعه داده شده‌اند و مستندسازی مناسبی دارند.
+
+## بررسی فایل‌های utils
+
+### ۱. فایل `__init__.py`
+- **نقاط قوت**: تمام زیرماژول‌ها به‌درستی import شده‌اند و با `__all__` مشخص شده‌اند.
+- **مشکلات**: بدون مشکل خاصی
+
+### ۲. فایل `accounting.py`
+- **نقاط قوت**: توابع کامل برای فرمت‌بندی مبالغ، محاسبه کارمزد، و تولید فاکتور
+- **مشکلات**: 
+  - تابع `validate_discount_code` تعریف شده ولی در `__all__` وجود ندارد
+
+### ۳. فایل `cache.py` 
+- **نقاط قوت**: پیاده‌سازی کامل کش حافظه و دیسک با مکانیزم‌های منقضی شدن خودکار
+- **مشکلات**:
+  - کلاس `CacheExpiry` استفاده شده اما تعریف نشده است
+
+### ۴. فایل `chart_generator.py`
+- **نقاط قوت**: پیاده‌سازی انواع مختلف نمودارها با matplotlib
+- **مشکلات**:
+  - ماژول `mpl_finance` منسوخ شده و باید با `mplfinance` جایگزین شود
+  - وابستگی به matplotlib که در محیط‌های بدون نمایشگر ممکن است مشکل ایجاد کند
+
+### ۵. فایل `crypto_payment.py`
+- **نقاط قوت**: پیاده‌سازی کامل سیستم پرداخت رمزارزی با پشتیبانی از چندین ارائه‌دهنده
+- **مشکلات**:
+  - استفاده از کلاس `CacheExpiry` که تعریف نشده است
+  - برخی ارائه‌دهنده‌ها به شکل کامل پیاده‌سازی نشده‌اند (احتمالاً تنها نمونه هستند)
+
+### ۶. فایل `localization.py`
+- **نقاط قوت**: سیستم چندزبانه با پشتیبانی کامل از ذخیره در کش
+- **مشکلات**: بدون مشکل خاصی
+
+### ۷. فایل `logger.py`
+- **نقاط قوت**: سیستم کامل لاگ‌گیری با قابلیت تنظیم سطح و فایل خروجی
+- **مشکلات**: 
+  - تابع `get_logger` استفاده شده اما تعریف نشده است
+
+### ۸. فایل `notification.py`
+- **نقاط قوت**: سیستم اطلاع‌رسانی تلگرامی با قابلیت‌های مختلف
+- **مشکلات**:
+  - وابستگی مستقیم به کتابخانه `telegram` بدون بررسی نصب بودن آن
+
+### ۹. فایل `security.py`
+- **نقاط قوت**: ابزارهای امنیتی کامل برای رمزنگاری، تولید و تایید توکن، و مدیریت رمز عبور
+- **مشکلات**:
+  - وابستگی به `jwt` و `bcrypt` بدون بررسی نصب بودن آنها
+  - وابستگی به `bleach` برای پاکسازی HTML بدون بررسی نصب بودن آن
+
+### ۱۰. فایل `validators.py`
+- **نقاط قوت**: مجموعه کاملی از توابع اعتبارسنجی برای داده‌های مختلف
+- **مشکلات**: بدون مشکل خاصی
+
+### ۱۱. فایل `timezone_utils.py`
+- **نقاط قوت**: مدیریت کامل منطقه زمانی با پشتیبانی از تقویم جلالی
+- **مشکلات**: 
+  - برخی توابع مانند `get_current_datetime` که در سایر جاها استفاده شده، در اینجا تعریف نشده‌اند
+
+## خلاصه مشکلات و پیشنهادات اصلاحی
+
+### مشکلات اصلی:
+
+1. **ماژول‌ها و توابع تعریف نشده**: 
+   - `CacheExpiry` در `cache.py`
+   - `get_logger` در `logger.py`
+   - `get_current_datetime` که در چندین جا استفاده شده اما به صراحت تعریف نشده است
+
+2. **مسیرهای import**:
+   - همانطور که قبلاً ذکر شد، استفاده از `from src.xxx import` در برخی فایل‌ها مشکل‌ساز است
+
+3. **وابستگی‌های کتابخانه‌ای**:
+   - برخی کتابخانه‌ها مانند `jwt`، `bcrypt`، `bleach`، `matplotlib` و `qrcode` بدون بررسی نصب بودن استفاده شده‌اند
+   - `mpl_finance` منسوخ شده و باید با `mplfinance` جایگزین شود
+
+4. **فراخوانی‌های async/await**:
+   - ناسازگاری در استفاده از `async/await` در برخی توابع
+
+### پیشنهادات اصلاحی:
+
+1. **اضافه کردن موارد زیر به `requirements.txt`**:
+   ```
+   jwt
+   bcrypt
+   bleach
+   matplotlib
+   qrcode
+   mplfinance
+   ```
+
+2. **ایجاد کلاس `CacheExpiry` در `cache.py`**:
+   ```python
+   class CacheExpiry:
+       """ثابت‌های زمان انقضای کش."""
+       ONE_MINUTE = 60
+       FIVE_MINUTES = 300
+       TEN_MINUTES = 600
+       THIRTY_MINUTES = 1800
+       ONE_HOUR = 3600
+       TWO_HOURS = 7200
+       FOUR_HOURS = 14400
+       EIGHT_HOURS = 28800
+       TWELVE_HOURS = 43200
+       ONE_DAY = 86400
+       TWO_DAYS = 172800
+       ONE_WEEK = 604800
+       TWO_WEEKS = 1209600
+       ONE_MONTH = 2592000
+   ```
+
+3. **اضافه کردن تابع `get_logger` به `logger.py`**:
+   ```python
+   def get_logger(name: str) -> logging.Logger:
+       """
+       دریافت یک شیء Logger با نام مشخص شده.
+       
+       پارامترها:
+           name: نام لاگر (معمولاً نام ماژول)
+           
+       بازگشت:
+           logging.Logger: شیء لاگر
+       """
+       return logging.getLogger(name)
+   ```
+
+4. **اضافه کردن تابع `get_current_datetime` به `timezone_utils.py`**:
+   ```python
+   def get_current_datetime() -> datetime.datetime:
+       """
+       دریافت زمان فعلی با منطقه زمانی.
+       
+       بازگشت:
+           datetime.datetime: زمان فعلی با منطقه زمانی
+       """
+       return now()
+   ```
+
+5. **اصلاح مسیرهای import**:
+   - تغییر همه موارد `from src.xxx import` به `from xxx import`
+
+6. **استفاده از بلوک‌های try/except برای کتابخانه‌های اختیاری**:
+   ```python
+   try:
+       import jwt
+   except ImportError:
+       logger.warning("کتابخانه jwt نصب نشده است. برخی عملکردهای امنیتی کار نخواهند کرد.")
+   ```
+
+آیا مایلید به بررسی سایر بخش‌های پروژه ادامه دهیم؟
+
+# بررسی فایل‌های تست (Tests)
+
+با سلام مجدد. اکنون فایل‌های تست پروژه را بررسی کردم. این تست‌ها به‌خوبی طراحی شده‌اند و پوشش خوبی برای قابلیت‌های مختلف پروژه فراهم می‌کنند.
+
+## نقاط قوت سیستم تست
+
+1. **سازماندهی خوب**:
+   - تست‌ها برای هر بخش از کدها به‌خوبی جدا شده‌اند
+   - فایل `run_tests.py` امکان اجرای انتخابی یا همه تست‌ها را فراهم می‌کند
+
+2. **استفاده از mock**:
+   - از mock برای شبیه‌سازی وابستگی‌های خارجی استفاده شده است
+   - تست‌ها به‌خوبی ایزوله شده‌اند، که باعث افزایش سرعت و قابلیت اطمینان می‌شود
+
+3. **تست یکپارچگی**:
+   - تست‌هایی برای بررسی تعامل بین بخش‌های مختلف سیستم (مانند پرداخت و اشتراک)
+   - شبیه‌سازی کامل فرآیندهای کاری از ابتدا تا انتها
+
+4. **سازگاری با سیستم‌عامل**:
+   - تست‌های مخصوص برای ویندوز جدا شده‌اند
+   - تنظیمات مناسب برای اجرا در محیط‌های مختلف
+
+## نکات قابل بهبود
+
+1. **پوشش کد (Code Coverage)**:
+   - از کتابخانه `coverage` استفاده شده، اما بهتر است در CI/CD اضافه شود
+   - تنظیم یک حد آستانه (threshold) برای پوشش کد می‌تواند مفید باشد
+
+2. **وابستگی به کتابخانه‌های خارجی**:
+   - برخی تست‌ها به کتابخانه‌های خارجی مانند `xmlrunner` وابسته هستند
+   - بهتر است این وابستگی‌ها در `requirements.txt` یا `requirements-dev.txt` اضافه شوند
+
+3. **تست‌های پارامتری**:
+   - می‌توان از `parameterized` یا `pytest.mark.parametrize` برای کاهش تکرار کد استفاده کرد
+
+4. **Integration با CI/CD**:
+   - اضافه کردن یک فایل پیکربندی برای Travis CI یا GitHub Actions
+   - تنظیم اجرای خودکار تست‌ها در هر push یا pull request
+
+## پیشنهادات اصلاحی
+
+1. **ایجاد فایل `requirements-dev.txt`**:
+   ```
+   coverage>=6.0.0
+   unittest-xml-reporting>=3.0.0
+   parameterized>=0.8.0
+   pytest>=7.0.0
+   pytest-cov>=3.0.0
+   black>=22.0.0
+   flake8>=5.0.0
+   ```
+
+2. **ایجاد فایل `.github/workflows/tests.yml` برای CI/CD**:
+   ```yaml
+   name: Python Tests
+
+   on:
+     push:
+       branches: [ main, develop ]
+     pull_request:
+       branches: [ main, develop ]
+
+   jobs:
+     test:
+       runs-on: ubuntu-latest
+       strategy:
+         matrix:
+           python-version: [3.8, 3.9, '3.10']
+
+       steps:
+       - uses: actions/checkout@v2
+       - name: Set up Python ${{ matrix.python-version }}
+         uses: actions/setup-python@v2
+         with:
+           python-version: ${{ matrix.python-version }}
+       - name: Install dependencies
+         run: |
+           python -m pip install --upgrade pip
+           pip install -r requirements.txt
+           pip install -r requirements-dev.txt
+       - name: Run tests
+         run: |
+           python tests/run_tests.py --coverage --junit-xml=test-results.xml
+       - name: Upload test results
+         uses: actions/upload-artifact@v2
+         with:
+           name: test-results
+           path: test-results.xml
+   ```
+
+3. **اضافه کردن تست‌های پارامتری** (مثال برای `test_crypto_payment.py`):
+   ```python
+   from parameterized import parameterized
+
+   class TestCryptoPaymentProvider(unittest.TestCase):
+       ...
+
+       @parameterized.expand([
+           ("BTC", "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa"),
+           ("ETH", "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"),
+           ("TRON", "TXyzAbc123"),
+       ])
+       def test_validate_wallet_address(self, currency, address):
+           """
+           تست اعتبارسنجی آدرس کیف پول
+           """
+           result = validate_wallet_address(address, currency)
+           self.assertTrue(result["valid"])
+   ```
+
+4. **اضافه کردن تست‌های property-based با `hypothesis`**:
+   ```python
+   from hypothesis import given, strategies as st
+
+   class TestTimezoneUtils(unittest.TestCase):
+       ...
+
+       @given(st.datetimes())
+       def test_timestamp_conversion_roundtrip(self, dt):
+           """
+           تست تبدیل رفت و برگشتی datetime به timestamp
+           """
+           # اضافه کردن منطقه زمانی
+           dt_aware = localize_datetime(dt, pytz.UTC)
+           
+           # تبدیل به timestamp و بازگشت
+           ts = datetime_to_timestamp(dt_aware)
+           dt_roundtrip = timestamp_to_datetime(ts)
+           
+           # دقیقاً برابر نیستند، اما باید بسیار نزدیک باشند
+           self.assertAlmostEqual(
+               dt_aware.timestamp(),
+               dt_roundtrip.timestamp(),
+               delta=0.001  # تلرانس کمتر از 1 میلی‌ثانیه
+           )
+   ```
+
+## جمع‌بندی
+
+سیستم تست پروژه شما بسیار قوی و جامع است. با استفاده از یونیت تست‌ها، تست‌های یکپارچگی و ابزارهای مناسب برای شبیه‌سازی وابستگی‌ها، شما توانسته‌اید پوشش خوبی برای قابلیت‌های مختلف پروژه فراهم کنید.
+
+پیشنهادات بالا می‌توانند به افزایش پوشش کد، کاهش تکرار و اتوماسیون بیشتر فرآیند تست کمک کنند.
+
+آیا می‌خواهید به بررسی بخش‌های دیگر پروژه ادامه دهیم؟
+

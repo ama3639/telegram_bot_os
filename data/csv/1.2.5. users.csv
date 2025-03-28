@@ -1,0 +1,6 @@
+id,user_id,username,first_name,last_name,language,is_premium,subscription_id,referral_source,registered_at,last_active_at,status
+1,123456789,premium_user,Ali,Mohammadi,fa,true,sub_abc123,direct,"2023-01-15T09:30:45+03:30","2023-05-15T14:22:17+03:30",active
+2,987654321,basic_user,Reza,Ahmadi,fa,false,,-,"2023-02-20T11:15:32+03:30","2023-05-14T18:05:51+03:30",active
+3,555666777,test_user,Sara,Hosseini,en,true,sub_def456,google,"2023-03-05T15:40:27+03:30","2023-05-15T10:30:12+03:30",active
+4,111222333,new_user,Mohammad,Karimi,fa,false,,-,"2023-05-10T08:22:39+03:30","2023-05-15T09:45:28+03:30",active
+5,444555666,premium_plus,Maryam,Rahimi,fa,true,sub_ghi789,friend,"2023-04-12T14:55:19+03:30","2023-05-15T12:17:35+03:30",active

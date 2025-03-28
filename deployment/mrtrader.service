@@ -1,0 +1,24 @@
+[Unit]
+Description=Telegram Bot Multi-Purpose Service
+After=network.target
+
+[Service]
+User=botuser
+Group=botuser
+WorkingDirectory=/opt/telegram_bot
+ExecStart=/usr/bin/python3 __main__.py
+Restart=always
+RestartSec=10
+SyslogIdentifier=telegram_bot
+Environment="PATH=/opt/telegram_bot/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+Environment="PYTHONPATH=/opt/telegram_bot"
+
+# ایمنی و محدودیت‌ها
+PrivateTmp=true
+ProtectSystem=full
+NoNewPrivileges=true
+# مقدار 512M محدودیت حافظه است
+MemoryLimit=512M
+
+[Install]
+WantedBy=multi-user.target

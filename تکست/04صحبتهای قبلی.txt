@@ -1,0 +1,1875 @@
+با سلام دوست عزیز
+
+تمامی فایل‌های ارسالی را به دقت بررسی کردم. ساختار پروژه و چت‌های قبلی شما را مطالعه نمودم. پروژه شما یک ربات تلگرام مدولار با قابلیت‌های متنوع برای تحلیل بازار ارزهای دیجیتال، مدیریت مالی، پرداخت و اشتراک می‌باشد.
+
+در بررسی‌های قبلی، موارد زیر شناسایی و پیشنهاد شده است:
+
+1. اصلاح مسیرهای import از `from src.xxx import` به `from xxx import`
+2. استفاده یکپارچه از `async/await` در کل پروژه
+3. جایگزینی `datetime.now()` با `get_current_datetime()` برای مدیریت صحیح منطقه زمانی
+4. تکمیل ماژول‌های مفقوده مانند `utils/validation.py` و `utils/security.py`
+5. پیاده‌سازی کامل ماژول‌های استراتژی و یادگیری ماشین
+6. بهبود امنیت و کارایی کد
+7. افزایش تست‌پذیری و مستندسازی
+
+ساختار پروژه بسیار منظم و کامل است، با بخش‌های مختلف برای داده‌ها، کد منبع، تست‌ها، ابزارهای نگهداری و مستندات.
+
+من آماده پاسخگویی به سوالات شما هستم. لطفاً سوالات خود را مطرح کنید.
+بله، تمام اصلاحات را با دقت بررسی کردم. در ادامه همه موارد اصلاحی را به صورت دسته‌بندی شده ارائه می‌دهم:
+
+## 1. اصلاح مسیرهای import
+- **مشکل**: استفاده از `from src.xxx import` در حالی که در `__main__.py`، مسیر `src` به `PYTHONPATH` اضافه می‌شود.
+- **راه حل**: تغییر تمام `from src.xxx import` به `from xxx import` در همه فایل‌ها
+- **فایل‌ها**: تمامی فایل‌های پروژه
+- **پیشنهاد**: استفاده از اسکریپت `tools/fix_imports.py` برای اصلاح خودکار
+
+## 2. مدیریت زمان و منطقه زمانی
+- **مشکل**: استفاده از `datetime.now()` بدون مشخص کردن منطقه زمانی
+- **راه حل**: استفاده از `get_current_datetime()` به جای `datetime.now()`
+- **فایل‌ها**: تمام فایل‌هایی که از `datetime.now()` استفاده می‌کنند
+- **پیشنهاد**: استفاده از اسکریپت `tools/fix_all_datetime_now.py`
+- **اضافه کردن تابع زیر به `utils/timezone_utils.py`**:
+```python
+def get_current_datetime() -> datetime.datetime:
+    """
+    دریافت زمان فعلی با منطقه زمانی.
+    
+    بازگشت:
+        datetime.datetime: زمان فعلی با منطقه زمانی
+    """
+    return now()
+```
+
+## 3. یکپارچه‌سازی async/await
+- **مشکل**: برخی توابع با `async/await` و برخی به شکل سنتی پیاده‌سازی شده‌اند
+- **راه حل**: یکپارچه‌سازی استفاده از `async/await` در تمام هندلرها و توابع مرتبط
+- **فایل‌ها**: `handlers/*.py`, `api/*.py`, `core/*.py`
+
+## 4. ماژول‌های مفقوده یا ناقص
+
+### 4.1. **`utils/validation.py`**
+- این فایل باید ایجاد شود (محتوا در چت‌های قبلی ارائه شده)
+- شامل توابع `validate_email`, `validate_phone_number`, `validate_username`, `validate_password`
+
+### 4.2. **`utils/security.py`**
+- تکمیل یا ایجاد با توابع رمزنگاری، تولید و تایید توکن، و مدیریت رمز عبور
+- افزودن وابستگی به کتابخانه‌های `jwt`, `bcrypt`, `bleach`
+
+### 4.3. **`models/user.py` و `models/subscription.py`**
+- ایجاد این فایل‌ها که در `handlers` به آن‌ها ارجاع داده شده
+
+### 4.4. **`utils/notification.py`**
+- تکمیل یا ایجاد این ماژول برای مدیریت اعلان‌ها
+
+### 4.5. **تکمیل فایل‌های استراتژی**
+- تکمیل `strategies/__init__.py`
+- تکمیل `strategies/api_strategy.py`
+- تکمیل `strategies/ai_strategy.py`
+- تکمیل `strategies/technical_analysis.py`
+
+### 4.6. **تکمیل فایل‌های یادگیری ماشین**
+- تکمیل `strategies/machine_learning/__init__.py`
+- تکمیل `strategies/machine_learning/regression.py`
+- تکمیل `strategies/machine_learning/classification.py`
+
+## 5. توابع و کلاس‌های مفقوده
+
+### 5.1. **کلاس `CacheExpiry` در `cache.py`**
+```python
+class CacheExpiry:
+    """ثابت‌های زمان انقضای کش."""
+    ONE_MINUTE = 60
+    FIVE_MINUTES = 300
+    TEN_MINUTES = 600
+    THIRTY_MINUTES = 1800
+    ONE_HOUR = 3600
+    TWO_HOURS = 7200
+    FOUR_HOURS = 14400
+    EIGHT_HOURS = 28800
+    TWELVE_HOURS = 43200
+    ONE_DAY = 86400
+    TWO_DAYS = 172800
+    ONE_WEEK = 604800
+    TWO_WEEKS = 1209600
+    ONE_MONTH = 2592000
+```
+
+### 5.2. **تابع `get_logger` در `logger.py`**
+```python
+def get_logger(name: str) -> logging.Logger:
+    """
+    دریافت یک شیء Logger با نام مشخص شده.
+    
+    پارامترها:
+        name: نام لاگر (معمولاً نام ماژول)
+        
+    بازگشت:
+        logging.Logger: شیء لاگر
+    """
+    return logging.getLogger(name)
+```
+
+## 6. بروزرسانی `requirements.txt`
+```
+python-telegram-bot>=20.0
+python-dotenv>=1.0.0
+pytz>=2023.3
+requests>=2.28.0
+pandas>=2.0.0
+matplotlib>=3.7.0
+numpy>=1.24.0
+SQLAlchemy>=2.0.0
+cryptography>=41.0.0
+scikit-learn>=1.3.0
+tensorflow>=2.12.0
+aiohttp>=3.8.0
+jwt>=1.0.0
+bcrypt>=4.0.0
+bleach>=5.0.0
+qrcode>=7.3.0
+mplfinance>=0.12.0
+xlsxwriter>=3.0.0
+psutil>=5.9.0
+boto3>=1.28.0
+parameterized>=0.8.0
+pytest>=7.0.0
+pytest-cov>=3.0.0
+pylint>=2.17.0
+black>=23.3.0
+```
+
+## 7. بهبودهای عملکرد و امنیت
+
+### 7.1. **بهینه‌سازی کوئری‌های SQL**
+- استفاده از `WITH` برای پیش‌فیلتر در کوئری‌های پیچیده
+- استفاده از پارامترهای bind برای جلوگیری از SQL Injection
+
+### 7.2. **پیاده‌سازی مکانیزم کش**
+```python
+from functools import lru_cache
+
+@lru_cache(maxsize=32)
+def get_cached_report_data(report_type, start_date_str, end_date_str, group_by):
+    # پیاده‌سازی دریافت گزارش
+    pass
+```
+
+### 7.3. **رمزنگاری داده‌های حساس**
+- استفاده از `cryptography` برای رمزنگاری اطلاعات حساس کاربران
+
+## 8. افزایش تست‌پذیری
+
+### 8.1. **ایجاد تست‌های جدید**
+- تست‌های پارامتری با `parameterized`
+- تست‌های property-based با `hypothesis`
+
+### 8.2. **فایل پیکربندی CI/CD**
+- ایجاد `.github/workflows/tests.yml` برای اجرای خودکار تست‌ها
+
+## 9. جایگزینی کتابخانه‌های منسوخ
+- تغییر `mpl_finance` به `mplfinance` در `utils/chart_generator.py`
+
+## لطفاً این فایل‌ها را برای من ارسال کنید تا بتوانم اصلاحات دقیق‌تری را پیشنهاد دهم:
+
+1. `utils/cache.py` - برای بررسی و اضافه کردن کلاس `CacheExpiry`
+2. `utils/logger.py` - برای بررسی و اضافه کردن تابع `get_logger`
+3. `utils/timezone_utils.py` - برای اضافه کردن تابع `get_current_datetime`
+4. `requirements.txt` - برای بروزرسانی کامل وابستگی‌ها
+5. نمونه‌ای از فایل‌های حاوی `datetime.now()` - برای بررسی نحوه اصلاح
+6. نمونه‌ای از فایل‌های حاوی `from src.xxx import` - برای بررسی نحوه اصلاح
+
+آیا نیاز دارید کد کامل برای هر یک از ماژول‌های مفقوده (مانند `validation.py` یا فایل‌های استراتژی) ارائه دهم؟
+
+
+متشکرم برای ارسال فایل‌ها و تصویر. حالا می‌توانم راهنمایی دقیق‌تری ارائه دهم:
+
+## 1. مورد `datetime.now` در سراسر پروژه
+
+با توجه به نتایج جستجو (182 مورد در 26 فایل)، دو روش برای اصلاح وجود دارد:
+
+### روش اول: استفاده از اسکریپت خودکار
+1. ابتدا باید تابع `get_current_datetime()` را به فایل `timezone_utils.py` اضافه کنیم:
+```python
+def get_current_datetime() -> datetime.datetime:
+    """
+    دریافت زمان فعلی با منطقه زمانی.
+    
+    بازگشت:
+        datetime.datetime: زمان فعلی با منطقه زمانی
+    """
+    return now()
+```
+
+2. سپس از اسکریپت `fix_all_datetime_now.py` موجود در پروژه استفاده کنید:
+```bash
+python tools/fix_all_datetime_now.py --backup
+```
+
+### روش دوم: جایگزینی دستی
+1. با استفاده از جستجو و جایگزینی در IDE:
+   - جستجو: `from datetime import datetime` یا `import datetime`
+   - جایگزینی: اضافه کردن `from utils.timezone_utils import get_current_datetime`
+2. سپس:
+   - جستجو: `datetime.now()`
+   - جایگزینی: `get_current_datetime()`
+
+توجه: در برخی موارد ممکن است `datetime.now()` در کنار سایر توابع `datetime` استفاده شود. در این موارد، باید تشخیص دهید که آیا باید `import datetime` را نگه دارید و فقط `datetime.now()` را با `get_current_datetime()` جایگزین کنید.
+
+## 2. اصلاح مسیرهای import
+
+برای اصلاح مسیرهای import از `from src.xxx import` به `from xxx import`:
+
+### روش جستجو و جایگزینی در IDE
+1. در VS Code از ابزار جستجو و جایگزینی استفاده کنید (Ctrl+Shift+H یا Cmd+Shift+H)
+2. در فیلد جستجو: `from src\.`
+3. در فیلد جایگزینی: `from `
+4. گزینه "Use Regular Expression" را فعال کنید
+5. روی "Replace All" کلیک کنید
+
+### الگوهای رایج برای جایگزینی:
+- `from src.utils import` → `from utils import`
+- `from src.models import` → `from models import`
+- `from src.api import` → `from api import`
+- `from src.core import` → `from core import`
+- `from src.handlers import` → `from handlers import`
+
+اگر با مشکلاتی مثل import‌های دایره‌ای یا دسترسی‌نداپذیر مواجه شدید، ممکن است نیاز به تنظیم دستی برخی فایل‌ها باشد.
+
+## 3. اضافه کردن کلاس CacheExpiry به cache.py
+
+این کلاس را به فایل `cache.py` اضافه کنید:
+
+```python
+class CacheExpiry:
+    """ثابت‌های زمان انقضای کش."""
+    ONE_MINUTE = 60
+    FIVE_MINUTES = 300
+    TEN_MINUTES = 600
+    THIRTY_MINUTES = 1800
+    ONE_HOUR = 3600
+    TWO_HOURS = 7200
+    FOUR_HOURS = 14400
+    EIGHT_HOURS = 28800
+    TWELVE_HOURS = 43200
+    ONE_DAY = 86400
+    TWO_DAYS = 172800
+    ONE_WEEK = 604800
+    TWO_WEEKS = 1209600
+    ONE_MONTH = 2592000
+```
+
+کلاس را در ابتدای فایل (پس از import‌ها و قبل از تعریف کلاس `Cache`) اضافه کنید.
+
+## 4. اضافه کردن تابع get_logger به logger.py
+
+این تابع را به فایل `logger.py` اضافه کنید:
+
+```python
+def get_logger(name: str) -> logging.Logger:
+    """
+    دریافت یک شیء Logger با نام مشخص شده.
+    
+    پارامترها:
+        name: نام لاگر (معمولاً نام ماژول)
+        
+    بازگشت:
+        logging.Logger: شیء لاگر
+    """
+    return logging.getLogger(name)
+```
+
+این تابع را پس از تابع `setup_logger` و قبل از تابع `log_execution_time` قرار دهید.
+
+لطفاً این تغییرات را انجام دهید و در صورت بروز هرگونه مشکل یا نیاز به راهنمایی بیشتر، به من اطلاع دهید.
+
+### 1. فایل `cache.py` با اصلاحات:
+
+```python
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""
+ماژول مدیریت کش.
+
+این ماژول مسئول مدیریت کش داده‌ها در حافظه است و با استفاده از آن می‌توان
+از فراخوانی‌های تکراری API یا محاسبات سنگین جلوگیری کرد.
+
+تاریخ ایجاد: ۱۴۰۴/۰۱/۰۷
+"""
+
+import logging
+import time
+import threading
+import json
+import os
+import hashlib
+from typing import Dict, Any, Optional, Callable, Tuple
+
+logger = logging.getLogger(__name__)
+
+class CacheExpiry:
+    """ثابت‌های زمان انقضای کش."""
+    ONE_MINUTE = 60
+    FIVE_MINUTES = 300
+    TEN_MINUTES = 600
+    THIRTY_MINUTES = 1800
+    ONE_HOUR = 3600
+    TWO_HOURS = 7200
+    FOUR_HOURS = 14400
+    EIGHT_HOURS = 28800
+    TWELVE_HOURS = 43200
+    ONE_DAY = 86400
+    TWO_DAYS = 172800
+    ONE_WEEK = 604800
+    TWO_WEEKS = 1209600
+    ONE_MONTH = 2592000
+
+class Cache:
+    """
+    کلاس مدیریت کش داده‌ها در حافظه.
+    """
+    
+    def __init__(self, default_ttl: int = 3600):
+        """
+        مقداردهی اولیه کلاس کش.
+        
+        پارامترها:
+            default_ttl: زمان پیش‌فرض نگهداری کش به ثانیه
+        """
+        self.cache: Dict[str, Tuple[Any, float]] = {}  # کلید -> (مقدار، زمان انقضا)
+        self.default_ttl = default_ttl  # زمان پیش‌فرض نگهداری کش
+        self.lock = threading.RLock()  # قفل برای دسترسی همزمان
+        
+        # راه‌اندازی تایمر برای پاکسازی خودکار
+        self.cleanup_timer = threading.Timer(300, self._auto_cleanup)  # هر ۵ دقیقه
+        self.cleanup_timer.daemon = True
+        self.cleanup_timer.start()
+        
+        logger.info("سیستم کش با موفقیت راه‌اندازی شد.")
+    
+    def set(self, key: str, value: Any, ttl: Optional[int] = None) -> None:
+        """
+        افزودن یا به‌روزرسانی مقدار در کش.
+        
+        پارامترها:
+            key: کلید کش
+            value: مقدار مورد نظر
+            ttl: زمان نگهداری به ثانیه (اگر None باشد، از مقدار پیش‌فرض استفاده می‌شود)
+        """
+        # محاسبه زمان انقضا
+        expiry_time = time.time() + (ttl if ttl is not None else self.default_ttl)
+        
+        with self.lock:
+            self.cache[key] = (value, expiry_time)
+    
+    def get(self, key: str, default: Any = None) -> Any:
+        """
+        دریافت مقدار از کش.
+        
+        پارامترها:
+            key: کلید کش
+            default: مقدار پیش‌فرض در صورت عدم وجود یا منقضی شدن کش
+            
+        بازگشت:
+            Any: مقدار کش شده یا مقدار پیش‌فرض
+        """
+        with self.lock:
+            if key not in self.cache:
+                return default
+            
+            value, expiry_time = self.cache[key]
+            
+            # بررسی انقضا
+            if time.time() > expiry_time:
+                del self.cache[key]
+                return default
+            
+            return value
+    
+    def delete(self, key: str) -> bool:
+        """
+        حذف مقدار از کش.
+        
+        پارامترها:
+            key: کلید کش
+            
+        بازگشت:
+            bool: True اگر کلید موجود بود و حذف شد، False در غیر این صورت
+        """
+        with self.lock:
+            if key in self.cache:
+                del self.cache[key]
+                return True
+            return False
+    
+    def exists(self, key: str) -> bool:
+        """
+        بررسی وجود و معتبر بودن کلید در کش.
+        
+        پارامترها:
+            key: کلید کش
+            
+        بازگشت:
+            bool: True اگر کلید موجود و معتبر باشد، False در غیر این صورت
+        """
+        with self.lock:
+            if key not in self.cache:
+                return False
+            
+            _, expiry_time = self.cache[key]
+            if time.time() > expiry_time:
+                del self.cache[key]
+                return False
+            
+            return True
+    
+    def clear(self) -> None:
+        """
+        پاکسازی کامل کش.
+        """
+        with self.lock:
+            self.cache.clear()
+            logger.info("کش کاملاً پاکسازی شد.")
+    
+    def _auto_cleanup(self) -> None:
+        """
+        پاکسازی خودکار مقادیر منقضی شده.
+        این تابع به صورت خودکار و به صورت دوره‌ای اجرا می‌شود.
+        """
+        current_time = time.time()
+        expired_keys = []
+        
+        try:
+            with self.lock:
+                # یافتن کلیدهای منقضی شده
+                for key, (_, expiry_time) in self.cache.items():
+                    if current_time > expiry_time:
+                        expired_keys.append(key)
+                
+                # حذف کلیدهای منقضی شده
+                for key in expired_keys:
+                    del self.cache[key]
+            
+            if expired_keys:
+                logger.debug(f"{len(expired_keys)} کلید منقضی شده از کش حذف شدند.")
+        
+        except Exception as e:
+            logger.error(f"خطا در پاکسازی خودکار کش: {str(e)}")
+        
+        finally:
+            # تنظیم مجدد تایمر
+            self.cleanup_timer = threading.Timer(300, self._auto_cleanup)
+            self.cleanup_timer.daemon = True
+            self.cleanup_timer.start()
+    
+    def __del__(self) -> None:
+        """
+        پاکسازی منابع هنگام حذف شیء.
+        """
+        try:
+            if hasattr(self, 'cleanup_timer') and self.cleanup_timer:
+                self.cleanup_timer.cancel()
+        except:
+            pass
+
+def cached(ttl: Optional[int] = None):
+    """
+    دکوراتور برای کش کردن نتایج توابع.
+    
+    پارامترها:
+        ttl: زمان نگهداری به ثانیه (اگر None باشد، از مقدار پیش‌فرض استفاده می‌شود)
+        
+    بازگشت:
+        تابع دکوراتور
+    
+    مثال استفاده:
+        @cached(ttl=60)
+        def expensive_function(param1, param2):
+            # محاسبات سنگین
+            return result
+    """
+    def decorator(func: Callable):
+        # ایجاد یک نمونه کش اختصاصی برای هر تابع
+        func_cache = Cache(default_ttl=ttl if ttl is not None else 3600)
+        
+        def wrapper(*args, **kwargs):
+            # ایجاد کلید کش بر اساس نام تابع و پارامترها
+            cache_key = f"{func.__name__}:{json.dumps(args, sort_keys=True)}:{json.dumps(sorted(kwargs.items()), sort_keys=True)}"
+            
+            # بررسی وجود مقدار در کش
+            cached_result = func_cache.get(cache_key)
+            if cached_result is not None:
+                logger.debug(f"نتیجه از کش برای تابع {func.__name__} بازگردانده شد")
+                return cached_result
+            
+            # اجرای تابع و ذخیره نتیجه در کش
+            result = func(*args, **kwargs)
+            func_cache.set(cache_key, result, ttl)
+            
+            return result
+        
+        return wrapper
+    
+    return decorator
+
+
+class DiskCache:
+    """
+    کلاس مدیریت کش داده‌ها روی دیسک.
+    این کلاس برای کش کردن داده‌های بزرگ یا داده‌هایی که باید پس از راه‌اندازی مجدد برنامه حفظ شوند استفاده می‌شود.
+    """
+    
+    def __init__(self, cache_dir: str = 'cache', default_ttl: int = 3600):
+        """
+        مقداردهی اولیه کلاس کش دیسک.
+        
+        پارامترها:
+            cache_dir: مسیر دایرکتوری کش
+            default_ttl: زمان پیش‌فرض نگهداری کش به ثانیه
+        """
+        self.cache_dir = cache_dir
+        self.default_ttl = default_ttl
+        self.lock = threading.RLock()
+        
+        # اطمینان از وجود دایرکتوری کش
+        os.makedirs(self.cache_dir, exist_ok=True)
+        
+        # پاکسازی فایل‌های منقضی شده در زمان راه‌اندازی
+        self._cleanup()
+        
+        # راه‌اندازی تایمر برای پاکسازی خودکار
+        self.cleanup_timer = threading.Timer(1800, self._auto_cleanup)  # هر ۳۰ دقیقه
+        self.cleanup_timer.daemon = True
+        self.cleanup_timer.start()
+        
+        logger.info(f"سیستم کش دیسک در مسیر '{cache_dir}' راه‌اندازی شد.")
+    
+    def _get_cache_path(self, key: str) -> str:
+        """
+        دریافت مسیر فایل کش برای یک کلید.
+        
+        پارامترها:
+            key: کلید کش
+            
+        بازگشت:
+            str: مسیر فایل کش
+        """
+        # هش کردن کلید برای ایجاد نام فایل امن
+        hashed_key = hashlib.md5(key.encode('utf-8')).hexdigest()
+        return os.path.join(self.cache_dir, f"{hashed_key}.cache")
+    
+    def set(self, key: str, value: Any, ttl: Optional[int] = None) -> None:
+        """
+        افزودن یا به‌روزرسانی مقدار در کش دیسک.
+        
+        پارامترها:
+            key: کلید کش
+            value: مقدار مورد نظر
+            ttl: زمان نگهداری به ثانیه (اگر None باشد، از مقدار پیش‌فرض استفاده می‌شود)
+        """
+        # محاسبه زمان انقضا
+        expiry_time = time.time() + (ttl if ttl is not None else self.default_ttl)
+        
+        # ساختار داده‌ای کش
+        cache_data = {
+            'expiry_time': expiry_time,
+            'value': value
+        }
+        
+        cache_path = self._get_cache_path(key)
+        
+        with self.lock:
+            try:
+                with open(cache_path, 'wb') as f:
+                    # استفاده از pickle برای سریالیزاسیون داده‌ها
+                    import pickle
+                    pickle.dump(cache_data, f, protocol=pickle.HIGHEST_PROTOCOL)
+            except Exception as e:
+                logger.error(f"خطا در ذخیره‌سازی کش دیسک: {str(e)}")
+    
+    def get(self, key: str, default: Any = None) -> Any:
+        """
+        دریافت مقدار از کش دیسک.
+        
+        پارامترها:
+            key: کلید کش
+            default: مقدار پیش‌فرض در صورت عدم وجود یا منقضی شدن کش
+            
+        بازگشت:
+            Any: مقدار کش شده یا مقدار پیش‌فرض
+        """
+        cache_path = self._get_cache_path(key)
+        
+        with self.lock:
+            if not os.path.exists(cache_path):
+                return default
+            
+            try:
+                with open(cache_path, 'rb') as f:
+                    import pickle
+                    cache_data = pickle.load(f)
+                
+                # بررسی انقضا
+                if time.time() > cache_data['expiry_time']:
+                    # حذف فایل منقضی شده
+                    os.remove(cache_path)
+                    return default
+                
+                return cache_data['value']
+            except Exception as e:
+                logger.error(f"خطا در بازیابی کش دیسک: {str(e)}")
+                
+                # در صورت خطا، فایل کش را حذف می‌کنیم
+                try:
+                    os.remove(cache_path)
+                except:
+                    pass
+                
+                return default
+    
+    def delete(self, key: str) -> bool:
+        """
+        حذف مقدار از کش دیسک.
+        
+        پارامترها:
+            key: کلید کش
+            
+        بازگشت:
+            bool: True اگر کلید موجود بود و حذف شد، False در غیر این صورت
+        """
+        cache_path = self._get_cache_path(key)
+        
+        with self.lock:
+            if os.path.exists(cache_path):
+                try:
+                    os.remove(cache_path)
+                    return True
+                except Exception as e:
+                    logger.error(f"خطا در حذف کش دیسک: {str(e)}")
+            
+            return False
+    
+    def exists(self, key: str) -> bool:
+        """
+        بررسی وجود و معتبر بودن کلید در کش دیسک.
+        
+        پارامترها:
+            key: کلید کش
+            
+        بازگشت:
+            bool: True اگر کلید موجود و معتبر باشد، False در غیر این صورت
+        """
+        cache_path = self._get_cache_path(key)
+        
+        with self.lock:
+            if not os.path.exists(cache_path):
+                return False
+            
+            try:
+                with open(cache_path, 'rb') as f:
+                    import pickle
+                    cache_data = pickle.load(f)
+                
+                # بررسی انقضا
+                if time.time() > cache_data['expiry_time']:
+                    # حذف فایل منقضی شده
+                    os.remove(cache_path)
+                    return False
+                
+                return True
+            except Exception:
+                # در صورت خطا، فایل کش را حذف می‌کنیم
+                try:
+                    os.remove(cache_path)
+                except:
+                    pass
+                
+                return False
+    
+    def clear(self) -> None:
+        """
+        پاکسازی کامل کش دیسک.
+        """
+        with self.lock:
+            try:
+                for filename in os.listdir(self.cache_dir):
+                    if filename.endswith('.cache'):
+                        os.remove(os.path.join(self.cache_dir, filename))
+                logger.info("کش دیسک کاملاً پاکسازی شد.")
+            except Exception as e:
+                logger.error(f"خطا در پاکسازی کش دیسک: {str(e)}")
+    
+    def _cleanup(self) -> None:
+        """
+        پاکسازی فایل‌های کش منقضی شده.
+        """
+        current_time = time.time()
+        
+        try:
+            for filename in os.listdir(self.cache_dir):
+                if not filename.endswith('.cache'):
+                    continue
+                
+                cache_path = os.path.join(self.cache_dir, filename)
+                
+                try:
+                    with open(cache_path, 'rb') as f:
+                        import pickle
+                        cache_data = pickle.load(f)
+                    
+                    # حذف فایل‌های منقضی شده
+                    if current_time > cache_data['expiry_time']:
+                        os.remove(cache_path)
+                except Exception:
+                    # در صورت خطا، فایل کش را حذف می‌کنیم
+                    try:
+                        os.remove(cache_path)
+                    except:
+                        pass
+        except Exception as e:
+            logger.error(f"خطا در پاکسازی کش دیسک: {str(e)}")
+    
+    def _auto_cleanup(self) -> None:
+        """
+        پاکسازی خودکار فایل‌های منقضی شده.
+        این تابع به صورت خودکار و به صورت دوره‌ای اجرا می‌شود.
+        """
+        try:
+            self._cleanup()
+        finally:
+            # تنظیم مجدد تایمر
+            self.cleanup_timer = threading.Timer(1800, self._auto_cleanup)
+            self.cleanup_timer.daemon = True
+            self.cleanup_timer.start()
+    
+    def __del__(self) -> None:
+        """
+        پاکسازی منابع هنگام حذف شیء.
+        """
+        try:
+            if hasattr(self, 'cleanup_timer') and self.cleanup_timer:
+                self.cleanup_timer.cancel()
+        except:
+            pass
+
+
+class CacheManager:
+    """
+    کلاس مدیریت انواع مختلف کش.
+    این کلاس امکان استفاده یکپارچه از انواع مختلف کش را فراهم می‌کند.
+    """
+    
+    def __init__(self, memory_ttl: int = 3600, disk_ttl: int = 86400, disk_cache_dir: str = 'cache'):
+        """
+        مقداردهی اولیه مدیریت کش.
+        
+        پارامترها:
+            memory_ttl: زمان پیش‌فرض نگهداری کش حافظه به ثانیه
+            disk_ttl: زمان پیش‌فرض نگهداری کش دیسک به ثانیه
+            disk_cache_dir: مسیر دایرکتوری کش دیسک
+        """
+        self.memory_cache = Cache(default_ttl=memory_ttl)
+        self.disk_cache = DiskCache(cache_dir=disk_cache_dir, default_ttl=disk_ttl)
+        self.default_storage = 'memory'  # انتخاب پیش‌فرض محل ذخیره‌سازی
+        
+        logger.info("سیستم مدیریت کش راه‌اندازی شد.")
+    
+    def set(self, key: str, value: Any, ttl: Optional[int] = None, storage: str = None) -> None:
+        """
+        افزودن یا به‌روزرسانی مقدار در کش.
+        
+        پارامترها:
+            key: کلید کش
+            value: مقدار مورد نظر
+            ttl: زمان نگهداری به ثانیه (اگر None باشد، از مقدار پیش‌فرض استفاده می‌شود)
+            storage: محل ذخیره‌سازی ('memory' یا 'disk') - اگر None باشد، از پیش‌فرض استفاده می‌شود
+        """
+        storage = storage or self.default_storage
+        
+        if storage == 'disk':
+            self.disk_cache.set(key, value, ttl)
+        else:
+            self.memory_cache.set(key, value, ttl)
+    
+    def get(self, key: str, default: Any = None, storage: str = None) -> Any:
+        """
+        دریافت مقدار از کش.
+        
+        پارامترها:
+            key: کلید کش
+            default: مقدار پیش‌فرض در صورت عدم وجود یا منقضی شدن کش
+            storage: محل ذخیره‌سازی ('memory' یا 'disk') - اگر None باشد، از پیش‌فرض استفاده می‌شود
+            
+        بازگشت:
+            Any: مقدار کش شده یا مقدار پیش‌فرض
+        """
+        storage = storage or self.default_storage
+        
+        if storage == 'disk':
+            return self.disk_cache.get(key, default)
+        else:
+            return self.memory_cache.get(key, default)
+    
+    def get_from_both(self, key: str, default: Any = None) -> Tuple[Any, str]:
+        """
+        دریافت مقدار از هر دو نوع کش (اولویت با حافظه).
+        
+        پارامترها:
+            key: کلید کش
+            default: مقدار پیش‌فرض در صورت عدم وجود یا منقضی شدن کش
+            
+        بازگشت:
+            Tuple[Any, str]: مقدار کش شده و منبع آن ('memory', 'disk' یا 'default')
+        """
+        # ابتدا بررسی کش حافظه
+        memory_value = self.memory_cache.get(key)
+        if memory_value is not None:
+            return memory_value, 'memory'
+        
+        # سپس بررسی کش دیسک
+        disk_value = self.disk_cache.get(key)
+        if disk_value is not None:
+            # ذخیره در کش حافظه برای دسترسی سریع‌تر در آینده
+            self.memory_cache.set(key, disk_value)
+            return disk_value, 'disk'
+        
+        return default, 'default'
+    
+    def delete(self, key: str, storage: str = None) -> bool:
+        """
+        حذف مقدار از کش.
+        
+        پارامترها:
+            key: کلید کش
+            storage: محل ذخیره‌سازی ('memory', 'disk' یا 'all') - اگر None باشد، از پیش‌فرض استفاده می‌شود
+            
+        بازگشت:
+            bool: True اگر کلید در حداقل یکی از کش‌ها موجود بود و حذف شد
+        """
+        storage = storage or self.default_storage
+        result = False
+        
+        if storage in ('memory', 'all'):
+            result = self.memory_cache.delete(key) or result
+        
+        if storage in ('disk', 'all'):
+            result = self.disk_cache.delete(key) or result
+        
+        return result
+    
+    def exists(self, key: str, storage: str = None) -> bool:
+        """
+        بررسی وجود و معتبر بودن کلید در کش.
+        
+        پارامترها:
+            key: کلید کش
+            storage: محل ذخیره‌سازی ('memory', 'disk' یا 'any') - اگر None باشد، از پیش‌فرض استفاده می‌شود
+            
+        بازگشت:
+            bool: True اگر کلید موجود و معتبر باشد، False در غیر این صورت
+        """
+        storage = storage or self.default_storage
+        
+        if storage == 'memory':
+            return self.memory_cache.exists(key)
+        elif storage == 'disk':
+            return self.disk_cache.exists(key)
+        elif storage == 'any':
+            return self.memory_cache.exists(key) or self.disk_cache.exists(key)
+        
+        return False
+    
+    def clear(self, storage: str = 'all') -> None:
+        """
+        پاکسازی کش.
+        
+        پارامترها:
+            storage: محل ذخیره‌سازی ('memory', 'disk' یا 'all')
+        """
+        if storage in ('memory', 'all'):
+            self.memory_cache.clear()
+        
+        if storage in ('disk', 'all'):
+            self.disk_cache.clear()
+        
+        logger.info(f"پاکسازی کش ({storage}) انجام شد.")
+    
+    def set_default_storage(self, storage: str) -> None:
+        """
+        تنظیم محل پیش‌فرض ذخیره‌سازی.
+        
+        پارامترها:
+            storage: محل ذخیره‌سازی ('memory' یا 'disk')
+        """
+        if storage not in ('memory', 'disk'):
+            raise ValueError("محل ذخیره‌سازی باید 'memory' یا 'disk' باشد.")
+        
+        self.default_storage = storage
+        logger.info(f"محل پیش‌فرض ذخیره‌سازی کش به '{storage}' تغییر یافت.")
+
+
+def disk_cached(ttl: Optional[int] = None, cache_dir: str = 'cache'):
+    """
+    دکوراتور برای کش کردن نتایج توابع در دیسک.
+    
+    پارامترها:
+        ttl: زمان نگهداری به ثانیه (اگر None باشد، از مقدار پیش‌فرض استفاده می‌شود)
+        cache_dir: مسیر دایرکتوری کش
+        
+    بازگشت:
+        تابع دکوراتور
+    
+    مثال استفاده:
+        @disk_cached(ttl=3600)
+        def expensive_function(param1, param2):
+            # محاسبات سنگین
+            return result
+    """
+    def decorator(func: Callable):
+        # ایجاد یک نمونه کش دیسک اختصاصی برای هر تابع
+        func_cache = DiskCache(cache_dir=os.path.join(cache_dir, func.__name__), default_ttl=ttl if ttl is not None else 86400)
+        
+        def wrapper(*args, **kwargs):
+            # ایجاد کلید کش بر اساس نام تابع و پارامترها
+            cache_key = f"{func.__name__}:{json.dumps(args, sort_keys=True)}:{json.dumps(sorted(kwargs.items()), sort_keys=True)}"
+            
+            # بررسی وجود مقدار در کش
+            cached_result = func_cache.get(cache_key)
+            if cached_result is not None:
+                logger.debug(f"نتیجه از کش دیسک برای تابع {func.__name__} بازگردانده شد")
+                return cached_result
+            
+            # اجرای تابع و ذخیره نتیجه در کش
+            result = func(*args, **kwargs)
+            func_cache.set(cache_key, result, ttl)
+            
+            return result
+        
+        return wrapper
+    
+    return decorator
+```
+
+### 2. فایل `logger.py` با اصلاحات:
+
+```python
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""
+ماژول تنظیم سیستم لاگ‌گیری.
+
+این ماژول مسئول پیکربندی سیستم لاگ‌گیری برنامه است و امکان ثبت لاگ‌ها
+در فایل و کنسول را فراهم می‌کند.
+
+تاریخ ایجاد: ۱۴۰۴/۰۱/۰۷
+"""
+
+import os
+import logging
+import time
+from logging.handlers import RotatingFileHandler
+from typing import Optional
+
+def setup_logger(level: int = logging.INFO, log_file: Optional[str] = None) -> None:
+    """
+    تنظیم و پیکربندی سیستم لاگ‌گیری.
+    
+    پارامترها:
+        level: سطح لاگ‌گیری (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+        log_file: مسیر فایل لاگ (اختیاری)
+    """
+    # تنظیم روت لاگر
+    root_logger = logging.getLogger()
+    root_logger.setLevel(level)
+    
+    # حذف هندلرهای قبلی برای جلوگیری از تکرار
+    for handler in root_logger.handlers:
+        root_logger.removeHandler(handler)
+    
+    # فرمت پیام‌های لاگ
+    log_format = logging.Formatter(
+        '%(asctime)s [%(levelname)s] %(name)s: %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+    
+    # افزودن هندلر کنسول
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(log_format)
+    root_logger.addHandler(console_handler)
+    
+    # افزودن هندلر فایل (در صورت مشخص شدن فایل لاگ)
+    if log_file:
+        # اطمینان از وجود دایرکتوری لاگ
+        log_dir = os.path.dirname(log_file)
+        if log_dir:
+            os.makedirs(log_dir, exist_ok=True)
+        
+        # ایجاد هندلر فایل با قابلیت چرخش
+        file_handler = RotatingFileHandler(
+            log_file,
+            maxBytes=10 * 1024 * 1024,  # حداکثر ۱۰ مگابایت
+            backupCount=5,  # نگهداری ۵ فایل قدیمی
+            encoding='utf-8'
+        )
+        file_handler.setFormatter(log_format)
+        root_logger.addHandler(file_handler)
+    
+    # ایجاد لاگر برای ماژول‌های خارجی با سطح بالاتر
+    for logger_name in ['telegram', 'httpx', 'urllib3']:
+        ext_logger = logging.getLogger(logger_name)
+        ext_logger.setLevel(logging.WARNING)  # سطح WARNING برای کتابخانه‌های خارجی
+    
+    # لاگ اطلاعات راه‌اندازی
+    logger = logging.getLogger(__name__)
+    logger.info(f"سیستم لاگ‌گیری با سطح {logging.getLevelName(level)} راه‌اندازی شد.")
+    if log_file:
+        logger.info(f"لاگ‌ها در فایل {log_file} ذخیره می‌شوند.")
+
+def get_logger(name: str) -> logging.Logger:
+    """
+    دریافت یک شیء Logger با نام مشخص شده.
+    
+    پارامترها:
+        name: نام لاگر (معمولاً نام ماژول)
+        
+    بازگشت:
+        logging.Logger: شیء لاگر
+    """
+    return logging.getLogger(name)
+
+def log_execution_time(func):
+    """
+    دکوراتور برای محاسبه و ثبت زمان اجرای توابع.
+    
+    پارامترها:
+        func: تابعی که زمان اجرای آن محاسبه می‌شود
+        
+    بازگشت:
+        تابع wrapper
+    """
+    def wrapper(*args, **kwargs):
+        logger = logging.getLogger(func.__module__)
+        
+        start_time = time.time()
+        result = func(*args, **kwargs)
+        end_time = time.time()
+        
+        execution_time = end_time - start_time
+        logger.debug(f"زمان اجرای {func.__name__}: {execution_time:.4f} ثانیه")
+        
+        return result
+    
+    return wrapper
+```
+
+### 3. فایل `timezone_utils.py` با اصلاحات:
+
+```python
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""
+ماژول مدیریت منطقه زمانی.
+
+این ماژول برای حل مشکلات مربوط به منطقه زمانی و استانداردسازی تاریخ و زمان
+در کل برنامه طراحی شده است.
+
+تاریخ ایجاد: ۱۴۰۴/۰۱/۰۷
+"""
+
+import logging
+import time
+import datetime
+import pytz
+import platform
+from typing import Optional, Union, Tuple, Dict, Any
+import os
+
+logger = logging.getLogger(__name__)
+
+# منطقه زمانی پیش‌فرض (تهران)
+DEFAULT_TIMEZONE = 'Asia/Tehran'
+
+# منطقه زمانی تنظیم شده
+current_timezone = DEFAULT_TIMEZONE
+
+def setup_timezone(timezone: str = DEFAULT_TIMEZONE) -> None:
+    """
+    تنظیم منطقه زمانی برنامه.
+    
+    پارامترها:
+        timezone: منطقه زمانی (مثلاً 'Asia/Tehran')
+    
+    استثناها:
+        ValueError: اگر منطقه زمانی نامعتبر باشد
+    """
+    global current_timezone
+    
+    # بررسی اعتبار منطقه زمانی
+    try:
+        tz = pytz.timezone(timezone)
+        current_timezone = timezone
+        logger.info(f"منطقه زمانی به '{timezone}' تنظیم شد.")
+    except pytz.exceptions.UnknownTimeZoneError:
+        logger.error(f"منطقه زمانی '{timezone}' نامعتبر است. استفاده از پیش‌فرض: {DEFAULT_TIMEZONE}")
+        current_timezone = DEFAULT_TIMEZONE
+        raise ValueError(f"منطقه زمانی '{timezone}' نامعتبر است.")
+
+def get_current_timezone() -> str:
+    """
+    دریافت منطقه زمانی فعلی.
+    
+    بازگشت:
+        str: منطقه زمانی فعلی
+    """
+    return current_timezone
+
+def localize_datetime(dt: Optional[datetime.datetime] = None) -> datetime.datetime:
+    """
+    اضافه کردن اطلاعات منطقه زمانی به یک شیء datetime.
+    
+    پارامترها:
+        dt: شیء datetime (اگر None باشد، زمان فعلی استفاده می‌شود)
+        
+    بازگشت:
+        datetime.datetime: شیء datetime با منطقه زمانی
+    """
+    if dt is None:
+        # اگر زمان ورودی None باشد، زمان فعلی را استفاده می‌کنیم
+        dt = datetime.datetime.now()
+    
+    # اگر زمان دارای منطقه زمانی است، آن را به منطقه زمانی فعلی تبدیل می‌کنیم
+    if dt.tzinfo is not None:
+        tz = pytz.timezone(current_timezone)
+        return dt.astimezone(tz)
+    
+    # اگر زمان بدون منطقه زمانی است، منطقه زمانی فعلی را اضافه می‌کنیم
+    tz = pytz.timezone(current_timezone)
+    return tz.localize(dt)
+
+def now() -> datetime.datetime:
+    """
+    دریافت زمان فعلی با منطقه زمانی.
+    
+    بازگشت:
+        datetime.datetime: زمان فعلی با منطقه زمانی
+    """
+    return localize_datetime(datetime.datetime.now())
+
+def get_current_datetime() -> datetime.datetime:
+    """
+    دریافت زمان فعلی با منطقه زمانی.
+    
+    بازگشت:
+        datetime.datetime: زمان فعلی با منطقه زمانی
+    """
+    return now()
+
+def today() -> datetime.date:
+    """
+    دریافت تاریخ امروز.
+    
+    بازگشت:
+        datetime.date: تاریخ امروز
+    """
+    return now().date()
+
+def format_datetime(dt: Optional[datetime.datetime] = None, 
+                   format_str: str = '%Y-%m-%d %H:%M:%S') -> str:
+    """
+    قالب‌بندی یک شیء datetime به رشته.
+    
+    پارامترها:
+        dt: شیء datetime (اگر None باشد، زمان فعلی استفاده می‌شود)
+        format_str: قالب تاریخ و زمان
+        
+    بازگشت:
+        str: رشته قالب‌بندی شده
+    """
+    if dt is None:
+        dt = now()
+    else:
+        dt = localize_datetime(dt)
+    
+    return dt.strftime(format_str)
+
+def parse_datetime(date_str: str, format_str: str = '%Y-%m-%d %H:%M:%S') -> datetime.datetime:
+    """
+    تبدیل یک رشته تاریخ و زمان به شیء datetime.
+    
+    پارامترها:
+        date_str: رشته تاریخ و زمان
+        format_str: قالب تاریخ و زمان
+        
+    بازگشت:
+        datetime.datetime: شیء datetime با منطقه زمانی
+        
+    استثناها:
+        ValueError: اگر رشته با قالب مطابقت نداشته باشد
+    """
+    dt = datetime.datetime.strptime(date_str, format_str)
+    return localize_datetime(dt)
+
+def parse_iso_datetime(date_str: str) -> datetime.datetime:
+    """
+    تبدیل یک رشته تاریخ و زمان ISO 8601 به شیء datetime.
+    
+    پارامترها:
+        date_str: رشته تاریخ و زمان ISO 8601
+        
+    بازگشت:
+        datetime.datetime: شیء datetime با منطقه زمانی
+        
+    استثناها:
+        ValueError: اگر رشته با قالب مطابقت نداشته باشد
+    """
+    try:
+        dt = datetime.datetime.fromisoformat(date_str.replace('Z', '+00:00'))
+        return localize_datetime(dt)
+    except ValueError:
+        # برای پشتیبانی از نسخه‌های قدیمی‌تر پایتون
+        from dateutil import parser
+        dt = parser.parse(date_str)
+        return localize_datetime(dt)
+
+def to_timestamp(dt: Optional[datetime.datetime] = None) -> float:
+    """
+    تبدیل یک شیء datetime به timestamp.
+    
+    پارامترها:
+        dt: شیء datetime (اگر None باشد، زمان فعلی استفاده می‌شود)
+        
+    بازگشت:
+        float: timestamp
+    """
+    if dt is None:
+        dt = now()
+    else:
+        dt = localize_datetime(dt)
+    
+    return dt.timestamp()
+
+def from_timestamp(timestamp: float) -> datetime.datetime:
+    """
+    تبدیل یک timestamp به شیء datetime.
+    
+    پارامترها:
+        timestamp: timestamp
+        
+    بازگشت:
+        datetime.datetime: شیء datetime با منطقه زمانی
+    """
+    dt = datetime.datetime.fromtimestamp(timestamp)
+    return localize_datetime(dt)
+
+def format_date_for_humans(dt: Optional[datetime.datetime] = None, 
+                         locale: str = 'fa') -> str:
+    """
+    قالب‌بندی تاریخ به صورت خوانا برای انسان.
+    
+    پارامترها:
+        dt: شیء datetime (اگر None باشد، زمان فعلی استفاده می‌شود)
+        locale: زبان (fa/en)
+        
+    بازگشت:
+        str: رشته قالب‌بندی شده
+    """
+    if dt is None:
+        dt = now()
+    else:
+        dt = localize_datetime(dt)
+    
+    # فاصله زمانی از اکنون
+    now_dt = now()
+    delta = now_dt - dt
+    
+    # قالب‌بندی بر اساس زبان
+    if locale == 'fa':
+        # فارسی
+        if delta.days == 0:
+            # امروز
+            if delta.seconds < 60:
+                return "همین الان"
+            elif delta.seconds < 3600:
+                minutes = delta.seconds // 60
+                return f"{minutes} دقیقه پیش"
+            else:
+                hours = delta.seconds // 3600
+                return f"{hours} ساعت پیش"
+        elif delta.days == 1:
+            # دیروز
+            return f"دیروز ساعت {dt.strftime('%H:%M')}"
+        elif delta.days < 7:
+            # این هفته
+            return f"{delta.days} روز پیش"
+        elif delta.days < 30:
+            # این ماه
+            weeks = delta.days // 7
+            return f"{weeks} هفته پیش"
+        elif delta.days < 365:
+            # امسال
+            months = delta.days // 30
+            return f"{months} ماه پیش"
+        else:
+            # سال‌های گذشته
+            return dt.strftime('%Y/%m/%d')
+    else:
+        # انگلیسی
+        if delta.days == 0:
+            # Today
+            if delta.seconds < 60:
+                return "Just now"
+            elif delta.seconds < 3600:
+                minutes = delta.seconds // 60
+                return f"{minutes} minutes ago"
+            else:
+                hours = delta.seconds // 3600
+                return f"{hours} hours ago"
+        elif delta.days == 1:
+            # Yesterday
+            return f"Yesterday at {dt.strftime('%H:%M')}"
+        elif delta.days < 7:
+            # This week
+            return f"{delta.days} days ago"
+        elif delta.days < 30:
+            # This month
+            weeks = delta.days // 7
+            return f"{weeks} weeks ago"
+        elif delta.days < 365:
+            # This year
+            months = delta.days // 30
+            return f"{months} months ago"
+        else:
+            # Past years
+            return dt.strftime('%Y-%m-%d')
+
+def jalali_to_gregorian(jy: int, jm: int, jd: int) -> Tuple[int, int, int]:
+    """
+    تبدیل تاریخ جلالی (شمسی) به میلادی.
+    
+    پارامترها:
+        jy: سال جلالی
+        jm: ماه جلالی
+        jd: روز جلالی
+        
+    بازگشت:
+        Tuple[int, int, int]: (سال، ماه، روز) میلادی
+    """
+    jy += 1595
+    days = -355668 + (365 * jy) + ((jy // 33) * 8) + (((jy % 33) + 3) // 4) + jd
+    
+    if jm < 7:
+        days += (jm - 1) * 31
+    else:
+        days += ((jm - 7) * 30) + 186
+    
+    gy = 400 * (days // 146097)
+    days %= 146097
+    
+    if days > 36524:
+        days -= 1
+        gy += 100 * (days // 36524)
+        days %= 36524
+        
+        if days >= 365:
+            days += 1
+    
+    gy += 4 * (days // 1461)
+    days %= 1461
+    
+    if days > 365:
+        gy += ((days - 1) // 365)
+        days = (days - 1) % 365
+    
+    gd = days + 1
+    
+    if ((gy % 4 == 0 and gy % 100 != 0) or (gy % 400 == 0)):
+        kab = 29
+    else:
+        kab = 28
+    
+    sal_a = [0, 31, kab, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+    gm = 0
+    
+    while gm < 13 and gd > sal_a[gm]:
+        gd -= sal_a[gm]
+        gm += 1
+    
+    return (gy, gm, gd)
+
+def gregorian_to_jalali(gy: int, gm: int, gd: int) -> Tuple[int, int, int]:
+    """
+    تبدیل تاریخ میلادی به جلالی (شمسی).
+    
+    پارامترها:
+        gy: سال میلادی
+        gm: ماه میلادی
+        gd: روز میلادی
+        
+    بازگشت:
+        Tuple[int, int, int]: (سال، ماه، روز) جلالی
+    """
+    g_d_m = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334]
+    
+    if (gy > 1600):
+        jy = 979
+        gy -= 1600
+    else:
+        jy = 0
+        gy -= 621
+    
+    gy2 = (gm > 2) and (gy + 1) or gy
+    days = (365 * gy) + ((gy2 + 3) // 4) - ((gy2 + 99) // 100) + ((gy2 + 399) // 400) - 80 + gd + g_d_m[gm - 1]
+    jy += 33 * (days // 12053)
+    days %= 12053
+    jy += 4 * (days // 1461)
+    days %= 1461
+    
+    if days > 365:
+        jy += (days - 1) // 365
+        days = (days - 1) % 365
+    
+    jm = (days < 186) and 1 + (days // 31) or 7 + ((days - 186) // 30)
+    jd = 1 + ((days < 186) and (days % 31) or ((days - 186) % 30))
+    
+    return (jy, jm, jd)
+
+def format_jalali_date(dt: Optional[datetime.datetime] = None, 
+                      format_str: str = '%Y/%m/%d') -> str:
+    """
+    قالب‌بندی یک شیء datetime به تاریخ جلالی (شمسی).
+    
+    پارامترها:
+        dt: شیء datetime (اگر None باشد، زمان فعلی استفاده می‌شود)
+        format_str: قالب تاریخ
+        
+    بازگشت:
+        str: رشته قالب‌بندی شده به تاریخ جلالی
+    """
+    if dt is None:
+        dt = now()
+    else:
+        dt = localize_datetime(dt)
+    
+    # تبدیل به جلالی
+    jy, jm, jd = gregorian_to_jalali(dt.year, dt.month, dt.day)
+    
+    # جایگزینی فرمت‌های استاندارد
+    result = format_str
+    result = result.replace('%Y', f'{jy:04d}')
+    result = result.replace('%y', f'{jy % 100:02d}')
+    result = result.replace('%m', f'{jm:02d}')
+    result = result.replace('%d', f'{jd:02d}')
+    
+    # اضافه کردن زمان اگر در قالب وجود دارد
+    result = result.replace('%H', f'{dt.hour:02d}')
+    result = result.replace('%M', f'{dt.minute:02d}')
+    result = result.replace('%S', f'{dt.second:02d}')
+    
+    return result
+
+def parse_jalali_date(date_str: str, format_str: str = '%Y/%m/%d') -> datetime.datetime:
+    """
+    تبدیل یک رشته تاریخ جلالی (شمسی) به شیء datetime.
+    
+    پارامترها:
+        date_str: رشته تاریخ جلالی
+        format_str: قالب تاریخ
+        
+    بازگشت:
+        datetime.datetime: شیء datetime با منطقه زمانی
+        
+    استثناها:
+        ValueError: اگر رشته با قالب مطابقت نداشته باشد
+    """
+    # پارس کردن تاریخ جلالی (پیاده‌سازی ساده)
+    if format_str == '%Y/%m/%d':
+        parts = date_str.split('/')
+        if len(parts) != 3:
+            raise ValueError("قالب تاریخ نامعتبر است. باید به صورت YYYY/MM/DD باشد.")
+        
+        try:
+            jy = int(parts[0])
+            jm = int(parts[1])
+            jd = int(parts[2])
+        except ValueError:
+            raise ValueError("اجزای تاریخ باید عدد باشند.")
+        
+        # تبدیل به میلادی
+        gy, gm, gd = jalali_to_gregorian(jy, jm, jd)
+        
+        # ساخت شیء datetime
+        dt = datetime.datetime(gy, gm, gd)
+        return localize_datetime(dt)
+    else:
+        raise ValueError("قالب تاریخ پشتیبانی نمی‌شود.")
+
+def get_utc_offset() -> str:
+    """
+    دریافت اختلاف زمانی با UTC.
+    
+    بازگشت:
+        str: اختلاف زمانی (مثلاً '+03:30')
+    """
+    tz = pytz.timezone(current_timezone)
+    offset = tz.utcoffset(datetime.datetime.now())
+    
+    # تبدیل به ساعت و دقیقه
+    total_seconds = int(offset.total_seconds())
+    hours, remainder = divmod(abs(total_seconds), 3600)
+    minutes = remainder // 60
+    
+    # قالب‌بندی
+    sign = '+' if total_seconds >= 0 else '-'
+    return f"{sign}{hours:02d}:{minutes:02d}"
+
+def fix_windows_timezone() -> None:
+    """
+    رفع مشکل منطقه زمانی در ویندوز.
+    """
+    if platform.system() == 'Windows':
+        # در ویندوز، منطقه زمانی ایران به درستی پشتیبانی نمی‌شود
+        # بنابراین باید به صورت دستی اصلاح شود
+        if current_timezone == 'Asia/Tehran':
+            os.environ['TZ'] = 'Asia/Tehran'
+            logger.info("منطقه زمانی تهران در ویندوز اصلاح شد.")
+
+def datetime_to_dict(dt: datetime.datetime) -> Dict[str, Any]:
+    """
+    تبدیل یک شیء datetime به دیکشنری.
+    
+    پارامترها:
+        dt: شیء datetime
+        
+    بازگشت:
+        Dict[str, Any]: دیکشنری حاوی اجزای تاریخ و زمان
+    """
+    dt = localize_datetime(dt)
+    
+    # تبدیل به جلالی
+    jy, jm, jd = gregorian_to_jalali(dt.year, dt.month, dt.day)
+    
+    return {
+        'gregorian': {
+            'year': dt.year,
+            'month': dt.month,
+            'day': dt.day,
+            'hour': dt.hour,
+            'minute': dt.minute,
+            'second': dt.second,
+            'microsecond': dt.microsecond,
+            'weekday': dt.weekday(),
+            'weekday_name': dt.strftime('%A'),
+            'month_name': dt.strftime('%B'),
+            'iso': dt.isoformat(),
+            'formatted': dt.strftime('%Y-%m-%d %H:%M:%S')
+        },
+        'jalali': {
+            'year': jy,
+            'month': jm,
+            'day': jd,
+            'formatted': format_jalali_date(dt)
+        },
+        'timestamp': dt.timestamp(),
+        'timezone': {
+            'name': current_timezone,
+            'offset': get_utc_offset()
+        }
+    }
+
+def get_next_weekday(weekday: int, from_date: Optional[datetime.date] = None) -> datetime.date:
+    """
+    دریافت تاریخ اولین روز هفته آینده.
+    
+    پارامترها:
+        weekday: روز هفته (0=دوشنبه، 6=یکشنبه)
+        from_date: تاریخ شروع (اگر None باشد، امروز استفاده می‌شود)
+        
+    بازگشت:
+        datetime.date: تاریخ روز هفته آینده
+    """
+    if from_date is None:
+        from_date = today()
+    
+    days_ahead = weekday - from_date.weekday()
+    if days_ahead <= 0:  # روز هفته گذشته، برو به هفته آینده
+        days_ahead += 7
+    
+    return from_date + datetime.timedelta(days=days_ahead)
+
+def date_range(start_date: datetime.date, end_date: datetime.date) -> list:
+    """
+    تولید لیستی از تاریخ‌ها در یک بازه.
+    
+    پارامترها:
+        start_date: تاریخ شروع
+        end_date: تاریخ پایان
+        
+    بازگشت:
+        list: لیست تاریخ‌ها
+    """
+    days = (end_date - start_date).days + 1
+    return [start_date + datetime.timedelta(days=i) for i in range(days)]
+
+# ایجاد نسخه‌های خود از توابع زمان پایتون برای استفاده در کل پروژه
+def datetime_now() -> datetime.datetime:
+    """
+    نسخه ایمن از datetime.now() با منطقه زمانی.
+    
+    بازگشت:
+        datetime.datetime: زمان فعلی با منطقه زمانی
+    """
+    return now()
+
+def datetime_utcnow() -> datetime.datetime:
+    """
+    نسخه ایمن از datetime.utcnow() با منطقه زمانی.
+    
+    بازگشت:
+        datetime.datetime: زمان UTC فعلی با منطقه زمانی
+    """
+    return datetime.datetime.now(pytz.UTC)
+
+def time_time() -> float:
+    """
+    نسخه ایمن از time.time().
+    
+    بازگشت:
+        float: timestamp فعلی
+    """
+    return time.time()
+```
+
+حالا برای موارد 1 و 2 (اصلاح `datetime.now` و مسیرهای import) ادامه می‌دهیم:
+
+1. برای اصلاح `datetime.now()`:
+   - تابع `get_current_datetime()` به `timezone_utils.py` اضافه شد
+   - پیشنهاد می‌کنم از ابزار `fix_all_datetime_now.py` استفاده کنید:
+     ```bash
+     python tools/fix_all_datetime_now.py --backup
+     ```
+   - این ابزار به طور خودکار همه موارد `datetime.now()` را به `get_current_datetime()` تبدیل می‌کند و import‌های لازم را اضافه می‌کند
+
+2. برای اصلاح مسیرهای import:
+   - از ابزار جستجو و جایگزینی در IDE استفاده کنید
+   - الگوی جستجو: `from src\.`
+   - الگوی جایگزینی: `from `
+   - اگر در VS Code کار می‌کنید، از Regex Search (Ctrl+Shift+H) استفاده کنید
+
+آیا نیاز به توضیح بیشتر یا فایل دیگری دارید؟
+
+
+برای این مورد هم میتوانیم با یک اسکریپت کل پروژه رو اصلاح کنیم ؟
+"برای اصلاح مسیرهای import: 
+* از ابزار جستجو و جایگزینی در IDE استفاده کنید
+* الگوی جستجو: from src\.
+* الگوی جایگزینی: from
+* اگر در VS Code کار می‌کنید، از Regex Search (Ctrl+Shift+H) استفاده کنید"
+و " الگوی جستجو: from src\.
+* الگوی جایگزینی: from" را جایگزین کنیم ؟
+
+اجرا کردم و لاگ را چک کن 
+PS D:\phonix coin\mr.trader\st\telegram_bot\claud\os> python tools/fix_all_datetime_now.py --backup
+C:\Users\pc city\AppData\Local\Programs\Python\Python312\python.exe: can't open file 'D:\\phonix coin\\mr.trader\\st\\telegram_bot\\claud\\os\\tools\\fix_all_datetime_now.py': [Errno 2] No such file or directory   
+PS D:\phonix coin\mr.trader\st\telegram_bot\claud\os> 
+آیا مشکل برطرف شده است ؟
+
+به نظر می‌رسد مسیر فایل `fix_all_datetime_now.py` اشتباه است. با توجه به ساختار پروژه‌ای که قبلاً ارسال کردید، این فایل باید در مسیر زیر باشد:
+```
+project_bot_medular/tools/7.2. fix_all_datetime_now.py
+```
+
+بله، برای اصلاح مسیرهای import نیز می‌توانیم یک اسکریپت ساده Python بنویسیم. اینجا یک اسکریپت کامل برای هر دو مورد (اصلاح `datetime.now` و مسیرهای import) ارائه می‌دهم:
+
+```python
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""
+اسکریپت اصلاح خودکار کد.
+
+این اسکریپت دو کار اصلی انجام می‌دهد:
+1. جایگزینی datetime.now() با get_current_datetime()
+2. اصلاح مسیرهای import از 'from src.xxx' به 'from xxx'
+
+تاریخ ایجاد: ۱۴۰۴/۰۱/۲۰
+"""
+
+import os
+import re
+import argparse
+import shutil
+from datetime import datetime
+from pathlib import Path
+
+def make_backup(file_path, backup_dir):
+    """ایجاد نسخه پشتیبان از فایل قبل از تغییر."""
+    if not os.path.exists(backup_dir):
+        os.makedirs(backup_dir)
+    
+    file_name = os.path.basename(file_path)
+    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+    backup_path = os.path.join(backup_dir, f"{file_name}.{timestamp}.bak")
+    
+    shutil.copy2(file_path, backup_path)
+    return backup_path
+
+def fix_datetime_now(content):
+    """جایگزینی datetime.now() با get_current_datetime()."""
+    # تشخیص وجود import datetime
+    has_datetime_import = re.search(r'(from\s+datetime\s+import\s+datetime|import\s+datetime(\s+as\s+\w+)?)', content)
+    
+    # تشخیص وجود استفاده از datetime.now()
+    has_datetime_now = re.search(r'datetime\.now\(\)', content)
+    
+    if not has_datetime_now:
+        return content, 0  # اگر datetime.now() وجود ندارد، تغییری ایجاد نمی‌کنیم
+    
+    # اضافه کردن import برای get_current_datetime
+    if 'from utils.timezone_utils import get_current_datetime' not in content:
+        if has_datetime_import:
+            # اضافه کردن import جدید بعد از import موجود
+            content = re.sub(
+                r'(from\s+datetime\s+import\s+datetime|import\s+datetime(\s+as\s+\w+)?)',
+                r'\1\nfrom utils.timezone_utils import get_current_datetime',
+                content,
+                count=1
+            )
+        else:
+            # اضافه کردن import در ابتدای فایل، بعد از docstring
+            docstring_pattern = r'(""".*?"""|\'\'\'.*?\'\'\')\s*'
+            docstring_match = re.search(docstring_pattern, content, re.DOTALL)
+            
+            if docstring_match:
+                docstring_end = docstring_match.end()
+                content = (
+                    content[:docstring_end] + 
+                    '\nfrom utils.timezone_utils import get_current_datetime\n' + 
+                    content[docstring_end:]
+                )
+            else:
+                # اگر docstring پیدا نشد، در ابتدای فایل اضافه می‌کنیم
+                content = 'from utils.timezone_utils import get_current_datetime\n\n' + content
+    
+    # جایگزینی datetime.now() با get_current_datetime()
+    content_new, replacements = re.subn(r'datetime\.now\(\)', 'get_current_datetime()', content)
+    
+    return content_new, replacements
+
+def fix_imports(content):
+    """اصلاح مسیرهای import از 'from src.xxx' به 'from xxx'."""
+    content_new, replacements = re.subn(r'from\s+src\.', 'from ', content)
+    return content_new, replacements
+
+def process_file(file_path, backup_dir=None, dry_run=False):
+    """پردازش یک فایل Python و اعمال اصلاحات."""
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        
+        # اصلاح datetime.now()
+        content_new, datetime_fixes = fix_datetime_now(content)
+        
+        # اصلاح مسیرهای import
+        content_new, import_fixes = fix_imports(content_new)
+        
+        # اگر تغییری ایجاد شده و در حالت dry-run نیستیم
+        if (datetime_fixes > 0 or import_fixes > 0) and not dry_run:
+            # ایجاد نسخه پشتیبان اگر لازم باشد
+            if backup_dir:
+                backup_path = make_backup(file_path, backup_dir)
+            
+            # ذخیره فایل اصلاح شده
+            with open(file_path, 'w', encoding='utf-8') as f:
+                f.write(content_new)
+        
+        return datetime_fixes, import_fixes
+    
+    except Exception as e:
+        print(f"خطا در پردازش فایل {file_path}: {str(e)}")
+        return 0, 0
+
+def main():
+    """تابع اصلی برنامه."""
+    parser = argparse.ArgumentParser(description='اصلاح خودکار کد پروژه')
+    parser.add_argument('--dir', type=str, default='.', help='مسیر دایرکتوری ریشه پروژه')
+    parser.add_argument('--backup', action='store_true', help='ایجاد نسخه پشتیبان از فایل‌ها')
+    parser.add_argument('--backup-dir', type=str, default='backups', help='مسیر دایرکتوری نسخه‌های پشتیبان')
+    parser.add_argument('--dry-run', action='store_true', help='اجرای آزمایشی بدون تغییر فایل‌ها')
+    parser.add_argument('--verbose', action='store_true', help='نمایش جزئیات بیشتر')
+    args = parser.parse_args()
+    
+    root_dir = args.dir
+    backup_dir = args.backup_dir if args.backup else None
+    
+    # آمار
+    total_files = 0
+    fixed_datetime_files = 0
+    fixed_import_files = 0
+    total_datetime_fixes = 0
+    total_import_fixes = 0
+    
+    # پیمایش همه فایل‌های Python در پروژه
+    for root, _, files in os.walk(root_dir):
+        for file in files:
+            if file.endswith('.py'):
+                file_path = os.path.join(root, file)
+                total_files += 1
+                
+                datetime_fixes, import_fixes = process_file(
+                    file_path, backup_dir, args.dry_run
+                )
+                
+                if datetime_fixes > 0:
+                    fixed_datetime_files += 1
+                    total_datetime_fixes += datetime_fixes
+                
+                if import_fixes > 0:
+                    fixed_import_files += 1
+                    total_import_fixes += import_fixes
+                
+                if args.verbose and (datetime_fixes > 0 or import_fixes > 0):
+                    print(f"{file_path}:")
+                    if datetime_fixes > 0:
+                        print(f"  - {datetime_fixes} مورد datetime.now() اصلاح شد")
+                    if import_fixes > 0:
+                        print(f"  - {import_fixes} مورد مسیر import اصلاح شد")
+    
+    # گزارش نهایی
+    print(f"\nگزارش نهایی:")
+    print(f"تعداد کل فایل‌های بررسی شده: {total_files}")
+    print(f"تعداد فایل‌های اصلاح شده برای datetime.now(): {fixed_datetime_files}")
+    print(f"تعداد کل موارد اصلاح شده datetime.now(): {total_datetime_fixes}")
+    print(f"تعداد فایل‌های اصلاح شده برای مسیرهای import: {fixed_import_files}")
+    print(f"تعداد کل موارد اصلاح شده مسیرهای import: {total_import_fixes}")
+    
+    if args.dry_run:
+        print("\nتوجه: این اجرا در حالت آزمایشی بود و هیچ فایلی تغییر نکرد.")
+
+if __name__ == "__main__":
+    main()
+```
+
+اسکریپت بالا را می‌توانید در یک فایل به نام `fix_code.py` ذخیره کنید و سپس به این شکل اجرا کنید:
+
+```bash
+python fix_code.py --backup --verbose
+```
+
+این اسکریپت:
+1. تمام فایل‌های `.py` را در دایرکتوری فعلی و زیرپوشه‌های آن پیمایش می‌کند
+2. `datetime.now()` را با `get_current_datetime()` جایگزین می‌کند
+3. مسیرهای import را از `from src.xxx` به `from xxx` تبدیل می‌کند
+4. قبل از تغییر فایل‌ها، از آن‌ها نسخه پشتیبان تهیه می‌کند
+5. گزارشی از تغییرات انجام شده ارائه می‌دهد
+
+آیا می‌خواهید این اسکریپت را امتحان کنید؟
+
+دقیقا آدرس درست است 
+و مسیر پروژه 
+D:\phonix coin\mr.trader\st\telegram_bot\claud\os
+با توجه به مطالب اعلامی بنده، آیا هنوز فایل fix_code.py رابسازم ؟
+در کدام پوشه قرار بدهم ؟
+
+

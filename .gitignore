@@ -1,0 +1,50 @@
+# فایل‌های تنظیمات محرمانه
+.env
+*.secret
+*.key
+
+# پایگاه داده
+*.db
+*.sqlite
+*.sqlite3
+
+# کش و فایل‌های موقت
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+.hypothesis/
+.cache/
+cache/
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+
+# محیط مجازی
+venv/
+env/
+ENV/
+
+# فایل‌های سیستم عامل
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# فایل‌های IDE
+.idea/
+.vscode/
+*.sublime-*
+*.swp
+*.swo
+
+# دایرکتوری‌های داده و پشتیبان
+data/backups/
+data/reports/
+logs/

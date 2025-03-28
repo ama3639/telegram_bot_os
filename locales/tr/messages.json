@@ -1,0 +1,139 @@
+{
+    "welcome": {
+      "new_user": "🌟 Çok amaçlı botumuza hoş geldiniz {name}!\n\nBu bot size birçok özellik sunar. Başlamak için aşağıdaki düğmeleri kullanabilir veya daha fazla rehberlik için /help komutunu kullanabilirsiniz.",
+      "returning_user": "👋 Merhaba {name}, tekrar hoş geldiniz!\n\nBugün sizin için ne yapabilirim?",
+      "returning_unregistered": "👋 Merhaba {name}!\n\nBotun tüm özelliklerini kullanmak için lütfen kaydınızı tamamlayın.",
+      "returning_subscribed": "👋 Merhaba {name}!\n\n{subscription_type} aboneliğiniz aktif ve {days_left} gün kaldı."
+    },
+    
+    "registration": {
+      "start": "🖋 Lütfen tercih ettiğiniz dili seçin:",
+      "enter_name": "👤 Lütfen tam adınızı girin:",
+      "invalid_name": "❌ Girdiğiniz isim geçersiz. Lütfen adınızı en az 3 en fazla 50 karakter olacak şekilde girin.",
+      "enter_email": "📧 Lütfen e-posta adresinizi girin:",
+      "invalid_email": "❌ Girdiğiniz e-posta adresi geçersiz. Lütfen geçerli bir e-posta adresi girin.",
+      "email_exists": "❌ Bu e-posta adresi sistemde zaten kayıtlı. Lütfen farklı bir e-posta adresi kullanın.",
+      "enter_phone": "📱 Lütfen cep telefonu numaranızı girin veya 'Kişiyi Paylaş' düğmesine tıklayın:",
+      "invalid_phone": "❌ Girdiğiniz telefon numarası geçersiz. Lütfen geçerli bir telefon numarası girin.",
+      "different_contact": "⚠️ Gönderilen telefon numarası size ait değil. Lütfen telefon numaranızı metin olarak girin.",
+      "summary": "📋 *Bilgilerinizin Özeti*\n\n👤 İsim: {name}\n📧 E-posta: {email}\n📱 Telefon: {phone}",
+      "check_info": "Lütfen bilgilerinizi kontrol edin ve doğruysa 'Onayla' seçeneğini seçin.",
+      "success": "✅ Kaydınız başarıyla tamamlandı!\n\nArtık botun tüm özelliklerini kullanabilirsiniz.",
+      "cancelled": "❌ Kayıt iptal edildi. İstediğiniz zaman /register komutunu kullanarak tekrar deneyebilirsiniz.",
+      "already_registered": "ℹ️ Sisteme zaten kayıtlısınız."
+    },
+    
+    "help": {
+      "main": "🔍 *Bot Yardımı*\n\nBu bot size çeşitli özellikler sunar. Her bölüm hakkında daha fazla bilgi için aşağıdaki düğmeleri kullanın.",
+      "commands": "📝 *Ana Bot Komutları*\n\n/start - Botu kullanmaya başla\n/help - Yardımı göster\n/register - Sisteme kayıt ol\n/profile - Profili görüntüle\n/settings - Bot ayarları\n/subscribe - Abonelik satın al\n/contact - Destek ile iletişime geç\n/language - Dili değiştir",
+      "services": "🛠 *Bot Hizmetleri*\n\nBu bot şunlar dahil olmak üzere çeşitli hizmetler sunar:\n\n• Kripto para piyasası bilgileri\n• Teknik analiz\n• Gerçek zamanlı fiyat bilgileri\n• Portföy yönetimi\n• Önemli uyarılar ve bildirimler",
+      "subscription": "💎 *Bot Abonelikleri*\n\nBotun gelişmiş özelliklerini kullanmak için aşağıdaki aboneliklerden birini satın alabilirsiniz:\n\n• Temel Abonelik: Temel özelliklere erişim\n• Premium Abonelik: Teknik analiz ve uyarılara erişim\n• VIP Abonelik: Tüm özelliklere ve kişisel danışmanlığa erişim\n\nAbonelik satın almak için /subscribe komutunu kullanın.",
+      "payment": "💰 *Ödeme Yöntemleri*\n\nDesteklenen ödeme yöntemleri şunları içerir:\n\n• Banka kartları\n• Döviz ödemeleri\n• Kripto para birimleri\n• E-cüzdanlar"
+    },
+    
+    "settings": {
+      "main": "⚙️ *Bot Ayarları*\n\nBu bölümden bot ayarlarını yönetebilirsiniz. Lütfen aşağıdaki seçeneklerden birini seçin:",
+      "choose_language": "🌐 *Dil Ayarla*\n\nTercih ettiğiniz dili seçin:",
+      "language_updated": "✅ Diliniz başarıyla güncellendi.",
+      "notification": "🔔 *Bildirim Ayarları*\n\nAlacağınız bildirimlerin türünü ayarlayabilirsiniz:",
+      "notification_updated": "✅ '{notification_type}' bildirim ayarı '{status}' olarak değiştirildi.",
+      "enabled": "Etkin",
+      "disabled": "Devre dışı",
+      "timezone": "🕒 *Saat Dilimini Ayarla*\n\nSaat diliminizi seçin:",
+      "timezone_updated": "✅ Saat diliminiz '{timezone}' olarak değiştirildi.",
+      "profile": "👤 *Profili Düzenle*\n\nDüzenlemek istediğiniz bilgileri seçin:",
+      "edit_name": "👤 *İsmi Düzenle*\n\nMevcut isim: {current_name}\n\nLütfen yeni isminizi girin:",
+      "invalid_name": "❌ Girdiğiniz isim geçersiz. Lütfen adınızı en az 3 en fazla 50 karakter olacak şekilde girin.",
+      "name_updated": "✅ İsminiz başarıyla güncellendi.",
+      "edit_email": "📧 *E-postayı Düzenle*\n\nMevcut e-posta: {current_email}\n\nLütfen yeni e-postanızı girin:",
+      "invalid_email": "❌ Girdiğiniz e-posta adresi geçersiz. Lütfen geçerli bir e-posta adresi girin.",
+      "email_exists": "❌ Bu e-posta adresi sistemde zaten kayıtlı. Lütfen farklı bir e-posta adresi kullanın.",
+      "email_updated": "✅ E-postanız başarıyla güncellendi.",
+      "edit_phone": "📱 *Telefon Numarasını Düzenle*\n\nMevcut telefon numarası: {current_phone}\n\nLütfen yeni telefon numaranızı girin:",
+      "invalid_phone": "❌ Girdiğiniz telefon numarası geçersiz. Lütfen geçerli bir telefon numarası girin.",
+      "phone_updated": "✅ Telefon numaranız başarıyla güncellendi.",
+      "privacy": "🔒 *Gizlilik Ayarları*\n\nBu bölümde, gizliliğinizle ilgili ayarları yönetebilirsiniz.",
+      "cancelled": "❌ Ayarlar bölümünden çıkıldı."
+    },
+    
+    "profile": {
+      "not_registered": "⚠️ Henüz kaydınızı tamamlamadınız. Profilinizi görüntülemek için lütfen önce kayıt olun."
+    },
+    
+    "contact": {
+      "instructions": "📨 *Destek ile İletişim*\n\nLütfen destek ekibine mesajınızı gönderin:",
+      "message_sent": "✅ Mesajınız destek ekibine başarıyla gönderildi. En kısa sürede size yanıt vereceğiz.",
+      "cancelled": "❌ Desteğe mesaj gönderme iptal edildi."
+    },
+    
+    "about": {
+      "main": "ℹ️ *Bot Hakkında*\n\nBu bot, çeşitli hizmetler sunmak için çok amaçlı bir araçtır. Ekibimiz, kullanıcı deneyiminizi geliştirmek için bu botu geliştirmekten gurur duyar.",
+      "team": "👨‍💻 *Ekibimiz*\n\nBu botun geliştirme ekibi, programlama, yapay zeka ve veri analizi alanlarında uzmanlardan oluşmaktadır.",
+      "services": "🛠 *Hizmetler*\n\nBu bot tarafından sağlanan ana hizmetler şunları içerir:\n\n• Kripto para piyasası bilgileri\n• Teknik analiz\n• Portföy yönetimi\n• Fiyat uyarıları\n• Uzman danışmanlığı",
+      "terms": "📜 *Şartlar ve Koşullar*\n\nBu botun kullanımı şartlar ve koşullara tabidir. Lütfen kullanmadan önce şartları okuyun. Bunlar şunları içerir:\n\n• Bilgilerin yalnızca kişisel amaçlar için kullanılması\n• İzin olmadan ticari kullanım yok\n• Fikri mülkiyet haklarına saygı\n• Gizli bilgilerin açıklanmaması",
+      "privacy": "🔒 *Gizlilik*\n\nKullanıcılarımızın gizliliğine saygı duyuyoruz. Bilgileriniz yalnızca hizmetleri geliştirmek için kullanılır ve üçüncü taraflarla paylaşılmaz."
+    },
+    
+    "subscription": {
+      "expired": "⚠️ {subscription_type} aboneliğinizin süresi doldu. Premium hizmetleri kullanmaya devam etmek için lütfen aboneliğinizi yenileyin.",
+      "expiring_soon": "⚠️ {subscription_type} aboneliğiniz {days_left} gün içinde sona erecek. Hizmet kesintisini önlemek için lütfen aboneliğinizi yenileyin.",
+      "types": {
+        "basic": "Temel",
+        "premium": "Premium",
+        "vip": "VIP",
+        "quarterly_premium": "Premium (Üç Aylık)",
+        "annual_premium": "Premium (Yıllık)"
+      }
+    },
+    
+    "messages": {
+      "please_register": "⚠️ Botun tüm özelliklerini kullanmak için lütfen kaydınızı tamamlayın.",
+      "default_response": "👋 Mesajınız alındı. Botun özellikleri hakkında bilgi edinmek için /help komutunu kullanabilirsiniz.",
+      "sticker_response": "🙂 Güzel çıkartma!",
+      "photo_response": "📸 Görseliniz alındı.",
+      "document_response": "📄 Dosyanız alındı.",
+      "location_response": "📍 Konumunuz (enlem: {latitude}, boylam: {longitude}) alındı."
+    },
+    
+    "error": {
+      "general": "❌ Üzgünüz, bir hata oluştu. Lütfen daha sonra tekrar deneyin veya destek ile iletişime geçin."
+    },
+    
+    "button": {
+      "register": "Kayıt Ol",
+      "help": "Yardım",
+      "language": "Dili Değiştir",
+      "settings": "Ayarlar",
+      "services": "Hizmetler",
+      "subscribe": "Abone Ol",
+      "profile": "Profilim",
+      "back": "Geri",
+      "cancel": "İptal",
+      "confirm": "Onayla",
+      "edit": "Düzenle",
+      "help_commands": "Komutlar",
+      "help_services": "Hizmetler",
+      "help_subscription": "Abonelikler",
+      "help_payment": "Ödemeler",
+      "contact_support": "Destek ile İletişim",
+      "share_contact": "Kişiyi Paylaş",
+      "transaction_history": "İşlem Geçmişi",
+      "settings_language": "Dil",
+      "settings_notification": "Bildirimler",
+      "settings_timezone": "Saat Dilimi",
+      "settings_profile": "Profili Düzenle",
+      "settings_privacy": "Gizlilik",
+      "edit_name": "İsmi Düzenle",
+      "edit_email": "E-postayı Düzenle",
+      "edit_phone": "Telefonu Düzenle",
+      "delete_account": "Hesabı Sil",
+      "export_data": "Verileri Dışa Aktar",
+      "about_team": "Ekip Hakkında",
+      "about_services": "Hizmetlerimiz",
+      "terms": "Şartlar ve Koşullar",
+      "privacy": "Gizlilik",
+      "notifications_news": "Haberler ve Duyurular",
+      "notifications_price": "Fiyat Uyarıları",
+      "notifications_subscription": "Abonelik Durumu"
+    }
+  }
